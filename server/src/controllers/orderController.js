@@ -1,17 +1,17 @@
-// const { deleteModel } = require('mongoose');
 const Orders = require('../models/Orders');
 
 /**
- * Courses are protected:
+ * Orders are protected:
  * -user must be authenticated (req.user set by auth middleware)
- * -courses are filtered by owner to prevent access to other's data
+ * -orders are filtered by customer to prevent access to other's data
  */
 
 // Get ALL
 async function getAllOrders(req, res, next) {
   try {
-    const customOrders = (await Orders.find({owner:req.user.id})).toSorted({createdAt: -1});
-    res.json({data:customOrders})
+    // Changed 'owner' to 'customer' and fixed .toSorted() to .sort()
+    const orders = await Orders.find({customer: req.user.id}).sort({createdAt: -1});
+    res.json({data: orders})
   } catch (err) {
     next(err);
   }
@@ -20,9 +20,9 @@ async function getAllOrders(req, res, next) {
 // GET Specific
 async function getOrdersByProduct(req, res, next) {
   try {
-    const course = await Orders.findOne({_id: req.params.id, owner: req.user.id})
-    if (!course) return res.status(404).json({message: "Course not found"});
-    res.json({data:course});
+    const order = await Orders.findOne({_id: req.params.id, customer: req.user.id})
+    if (!order) return res.status(404).json({message: "Order not found"});
+    res.json({data: order});
   } catch (err) {
     next(err);
   }
@@ -31,14 +31,14 @@ async function getOrdersByProduct(req, res, next) {
 // POST
 async function createOrder(req, res, next) {
   try {
-    const course = new Orders({
-      owner: req.user.id,
-      title: req.body.title,
-      level: req.body.level,
-      published: req.body.published,
+    const order = new Orders({
+      customer: req.user.id,
+      customerName: req.body.customerName,
+      customerEmail: req.body.customerEmail,
+      orderDetails: req.body.orderDetails
     })
-    await course.save();
-    res.status(201).json({data:course});
+    await order.save();
+    res.status(201).json({data: order});
   } catch (err) {
     next(err);
   }
@@ -48,15 +48,16 @@ async function createOrder(req, res, next) {
 async function updateOrder(req, res, next) {
   try {
     const updated = await Orders.findOneAndUpdate(
-      {_id: req.params.id, owner: req.user.id},
+      {_id: req.params.id, customer: req.user.id},
       {
-        title: req.body.title,
-        level: req.body.level,
-        published: req.body.published,
-      }
+        customerName: req.body.customerName,
+        customerEmail: req.body.customerEmail,
+        orderDetails: req.body.orderDetails
+      },
+      {new: true} // Return updated document
     )
 
-    if (!updated) return res.status(404).json({message: "Course not found"});
+    if (!updated) return res.status(404).json({message: "Order not found"});
     res.json({data: updated});
   } catch (err) {
     next(err);
@@ -66,8 +67,8 @@ async function updateOrder(req, res, next) {
 // DELETE
 async function deleteOrder(req, res, next) {
   try {
-    const deleted = await Orders.findOneAndDelete({_id: req.params.id, owner: req.user.id})
-    if (!deleted) return res.status(404).json({message: "Course not found"});
+    const deleted = await Orders.findOneAndDelete({_id: req.params.id, customer: req.user.id})
+    if (!deleted) return res.status(404).json({message: "Order not found"});
     res.json({data: deleted});
   } catch (err) {
     next(err);

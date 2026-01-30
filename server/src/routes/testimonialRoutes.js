@@ -1,18 +1,22 @@
 const express = require("express");
 const router = express.Router();
 
-const {requireAuth} = require("../middleware/authMiddleware");
-const {getTestimonials, getTestimonialsByProduct, createTestimonials, updateTestimonials, deleteTestimonials} = require("../controllers/testimonialController.js")
-/**
- * We are going to apply the requireAuth to all course routes:
- * --> Every request must include a valuable JWT token
- */
-router.use(requireAuth);
+const {requireAuth} = require("../middleware/auth");
+const {getAllTestimonials, getTestimonialsByProduct, createTestimonial, updateTestimonial, deleteTestimonial} = require("../controllers/testimonialController.js")
 
-router.get("/", getTestimonials);
+/**
+ * Mixed authentication:
+ * - GET routes are public (anyone can view testimonials)
+ * - POST/PUT/DELETE routes require authentication
+ */
+
+// Public routes - no auth required
+router.get("/", getAllTestimonials);
 router.get("/:id", getTestimonialsByProduct);
-router.post("/", createTestimonials);
-router.put("/:id", updateTestimonials);
-router.delete("/:id", deleteTestimonials);
+
+// Protected routes - auth required
+router.post("/", requireAuth, createTestimonial);
+router.put("/:id", requireAuth, updateTestimonial);
+router.delete("/:id", requireAuth, deleteTestimonial);
 
 module.exports = router;

@@ -1,14 +1,13 @@
-const mongoose = require('mongoose');
-/* 
-* User model for authentication
-* password is stored in hashed format. NEVER STORE PLAIN TEXT.
-*/
+const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-    name: { type: String, required: true, trim: true, maxlenth: 80 },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true},
-    passwordHash: {type: String, requird: String}
-}, {timestamps: true},
-)
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    passwordHash: { type: String, required: true }
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("User", userSchema)
+// Prevent OverwriteModelError
+module.exports = mongoose.models.User || mongoose.model("User", userSchema);

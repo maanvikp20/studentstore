@@ -1,17 +1,22 @@
 const express = require("express");
 const router = express.Router();
 
-// const {requireAuth} = require("../middleware/authMiddleware");
-const {getInventory, getInventoryByProduct, createInventory, updateInventory, deleteInventory} = require("../controllers/customOrders")
+const {requireAuth} = require("../middleware/auth");
+const {getInventory, getInventoryByProduct, createInventory, updateInventory, deleteInventory} = require("../controllers/inventoryController");
+
 /**
- * We are going to apply the requireAuth to all course routes:
- * --> Every request must include a valuable JWT token
+ * Mixed authentication for inventory:
+ * - GET routes are public (anyone can view inventory)
+ * - POST/PUT/DELETE routes require authentication (only authenticated users can manage inventory)
  */
 
+// Public routes - no auth required
 router.get("/", getInventory);
 router.get("/:id", getInventoryByProduct);
-router.post("/", createInventory);
-router.put("/:id", updateInventory);
-router.delete("/:id", deleteInventory);
+
+// Protected routes - auth required
+router.post("/", requireAuth, createInventory);
+router.put("/:id", requireAuth, updateInventory);
+router.delete("/:id", requireAuth, deleteInventory);
 
 module.exports = router;

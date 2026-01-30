@@ -1,73 +1,75 @@
-const { deleteModel } = require('mongoose');
 const CustomOrders = require('../models/CustomOrders');
 
 /**
  * CustomOrders are protected:
  * -user must be authenticated (req.user set by auth middleware)
- * -CustomOrders are filtered by owner to prevent access to other's data
+ * -CustomOrders are filtered by customer to prevent access to other's data
  */
-
 
 async function getAllCustomOrders(req, res, next) {
   try {
-    const customOrders = (await CustomOrders.find({owner:req.user.id})).toSorted({createdAt: -1});
-    res.json({data:customOrders})
+    // Changed 'owner' to 'customer' to match schema
+    const customOrders = await CustomOrders.find({customer: req.user.id}).sort({createdAt: -1});
+    res.json({data: customOrders})
   } catch (err) {
     next(err);
   }
 }
-
 
 async function getSpecificCustomOrder(req, res, next) {
   try {
-    const CustomOrder = await CustomOrder.findOne({_id: req.params.id, owner: req.user.id})
-    if (!CustomOrder) return res.status(404).json({message: "CustomOrder not found"});
-    res.json({data:CustomOrder});
+    // Fixed variable name and changed 'owner' to 'customer'
+    const customOrder = await CustomOrders.findOne({_id: req.params.id, customer: req.user.id})
+    if (!customOrder) return res.status(404).json({message: "Custom order not found"});
+    res.json({data: customOrder});
   } catch (err) {
     next(err);
   }
 }
 
-// POST /api/CustomOrders
+// POST /api/custom-orders
 async function createCustomOrder(req, res, next) {
   try {
     const customOrder = new CustomOrders({
-      owner: req.user.id,
-      title: req.body.title,
-      level: req.body.level,
-      published: req.body.published,
+      customer: req.user.id, // Changed from 'owner' to 'customer'
+      customerName: req.body.customerName,
+      customerEmail: req.body.customerEmail,
+      orderDetails: req.body.orderDetails,
+      orderFileURL: req.body.orderFileURL
     })
     await customOrder.save();
-    res.status(201).json({data:customOrder});
+    res.status(201).json({data: customOrder});
   } catch (err) {
     next(err);
   }
 }
 
-// PUT /api/CustomOrders/:id
+// PUT /api/custom-orders/:id
 async function updateCustomOrder(req, res, next) {
   try {
     const updated = await CustomOrders.findOneAndUpdate(
-      {_id: req.params.id, owner: req.user.id},
+      {_id: req.params.id, customer: req.user.id},
       {
-        title: req.body.title,
-        level: req.body.level,
-        published: req.body.published,
-      }
+        customerName: req.body.customerName,
+        customerEmail: req.body.customerEmail,
+        orderDetails: req.body.orderDetails,
+        orderFileURL: req.body.orderFileURL
+      },
+      {new: true} // Return updated document
     )
 
-    if (!updated) return res.status(404).json({message: "CustomOrder not found"});
+    if (!updated) return res.status(404).json({message: "Custom order not found"});
     res.json({data: updated});
   } catch (err) {
     next(err);
   }
 }
 
-// DELETE /api/CustomOrders/:id
+// DELETE /api/custom-orders/:id
 async function deleteCustomOrder(req, res, next) {
   try {
-    const deleted = await CustomOrders.findOneAndDelete({_id: req.params.id, owner: req.user.id})
-    if (!deleted) return res.status(404).json({message: "CustomOrder not found"});
+    const deleted = await CustomOrders.findOneAndDelete({_id: req.params.id, customer: req.user.id})
+    if (!deleted) return res.status(404).json({message: "Custom order not found"});
     res.json({data: deleted});
   } catch (err) {
     next(err);
