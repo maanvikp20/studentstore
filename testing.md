@@ -352,4 +352,4 @@ testAPI();
 
 ---
 
-That's it! You now know how to access both protected and public routes in your Student Store API! 🎉
+That's it! You now know how to access both protected and public routes in your Student Store API! 
