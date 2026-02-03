@@ -1,1 +1,1 @@
-{"version":3,"sourceRoot":"","sources":["../../SASS/components/Navbar.scss"],"names":[],"mappings":"AAAA,KACI,aACA,yBAGJ,aACI","file":"Home.min.css"}
+{"version":3,"sourceRoot":"","sources":["../../SASS/components/Navbar.scss","../../SASS/components/Footer.scss"],"names":[],"mappings":"AAAA,IACE,aACA,mBACA,6BACA,mBACA,YACA,YACA,yBACA,UACE,qBACA,WACA,iBACA,gBACA,cACA,kBACA,qCACA,yBAEA,yBACE,yBACA,YCpBN,OACI,aACA,uBACA,yBACA,YAEA,oBACI,iBACA,WACA","file":"Home.min.css"}

@@ -1,1 +1,1 @@
-{"version":3,"sourceRoot":"","sources":["../../SASS/components/Navbar.scss"],"names":[],"mappings":"AAAA;EACI;EACA;;;AAGJ;EACI","file":"Home.css"}
+{"version":3,"sourceRoot":"","sources":["../../SASS/components/Navbar.scss","../../SASS/components/Footer.scss"],"names":[],"mappings":"AAAA;EACE;EACA;EACA;EACA;EACA;EACA;EACA;;AACA;EACE;EACA;EACA;EACA;EACA;EACA;EACA;EACA;;AAEA;EACE;EACA;;;ACpBN;EACI;EACA;EACA;EACA;;AAEA;EACI;EACA;EACA","file":"Home.css"}
