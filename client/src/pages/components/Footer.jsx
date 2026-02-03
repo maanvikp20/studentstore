@@ -3,14 +3,14 @@ import { FaInstagram, FaTwitter, FaFacebook } from "react-icons/fa";
 export default function Footer   () {
 
     return(
-        <footer className="footer">
-            <p className="footer_text">
-                &copy; Lorem ipsum dolor sit amet, consectetur adipisicing elit. A id suscipit distinctio! Optio esse, earum corporis voluptatibus, repellendus sunt ex sapiente facere
+        <footer>
+            <p className="footer-text">
+                &copy; All rights reserved. Designed by Maanvik Poddar, Jose Pajon, and Montgomery McDonald.
             </p>
             <div>
-                <FaInstagram size={15} style={{color:"white", marginRight:"1rem"}}/>
-                <FaTwitter size={15} style={{color:"white", marginRight:"1rem"}}/>
-                <FaFacebook size={15} style={{color:"white", marginRight:"1rem"}}/>
+                <FaInstagram size={15} style={{color:"black", marginRight:"1rem"}}/>
+                <FaTwitter size={15} style={{color:"black", marginRight:"1rem"}}/>
+                <FaFacebook size={15} style={{color:"black", marginRight:"1rem"}}/>
             </div>
         </footer>        
     )

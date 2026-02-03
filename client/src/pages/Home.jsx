@@ -1,80 +1,73 @@
-import React from 'react'
+import React from 'react';
 
 const Home = () => {
   return (
-    <div className="home-container">
+    <div className="home">
+      {/* Banner Section */}
+      <section className="banner">
+        <h1>Your Banner Title Here</h1>
+      </section>
 
-      {/* Hero/Banner Section - Large top section */}
-      <section className="hero-banner">
-        <div className="banner-content">
-          <h1>Main Headline</h1>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit...</p>
+      {/* About Us Section */}
+      <section className="about">
+        <h2>IT'S ABOUT US</h2>
+        <p>
+          Replace this text with your about us content. You can talk about your company, 
+          mission, values, or anything else you want to share with your customers.
+        </p>
+      </section>
+
+      {/* Carousel Section */}
+      <section className="carousel">
+        <p>Your product carousel will go here. Add your product slider/carousel component.</p>
+      </section>
+
+      {/* Two Column Section */}
+      <section className="two-col">
+        <div className="col-item large">
+          <img src="https://via.placeholder.com/400x400" alt="Gallery" />
+          <p>Replace with your image gallery</p>
+        </div>
+        <div className="col-right">
+          <div className="col-item">
+            <h3>Custom Orders</h3>
+            <p>Add your custom orders content here</p>
+          </div>
+          <div className="col-item">
+            <h3>Blank Page</h3>
+            <p>Add any content you want here</p>
+          </div>
         </div>
       </section>
 
-      {/* Category Cards - Grid of 4 cards below banner */}
-      <section className="category-grid">
-        <div className="category-card">Card 1</div>
-        <div className="category-card">Card 2</div>
-        <div className="category-card">Card 3</div>
-        <div className="category-card">Card 4</div>
-      </section>
-      
-
-      {/* Featured Content Section - Full width with text */}
-      <section className="featured-content">
-        <h2>Featured Section Title</h2>
-        <p>Description text for this section...</p>
-      </section>
-
-      {/* Product Grid - 2 columns */}
-      <section className="product-grid-two-col">
-        <div className="product-card-large">Product 1</div>
-        <div className="product-card-large">Product 2</div>
-      </section>
-
-      {/* Testimonials/Info Section */}
-      <section className="testimonials-section">
-        <div className="testimonial-content">
-          <p>Customer testimonial or important information...</p>
-        </div>
-      </section>
-
-      {/* Best Sellers Grid - 3 columns */}
+      {/* Best Sellers Section */}
       <section className="best-sellers">
-        <h2>Best Sellers</h2>
-        <div className="product-grid-three-col">
-          <div className="product-card">Product 1</div>
-          <div className="product-card">Product 2</div>
-          <div className="product-card">Product 3</div>
+        <h3>Best Sellers</h3>
+        <div className="products">
+          <div className="product">
+            <img src="https://via.placeholder.com/200x200" alt="Product 1" />
+            <h4>Product Name 1</h4>
+            <p>$99.99</p>
+          </div>
+          <div className="product">
+            <img src="https://via.placeholder.com/200x200" alt="Product 2" />
+            <h4>Product Name 2</h4>
+            <p>$79.99</p>
+          </div>
+          <div className="product">
+            <img src="https://via.placeholder.com/200x200" alt="Product 3" />
+            <h4>Product Name 3</h4>
+            <p>$89.99</p>
+          </div>
+          <div className="product">
+            <img src="https://via.placeholder.com/200x200" alt="Product 4" />
+            <h4>Product Name 4</h4>
+            <p>$109.99</p>
+          </div>
         </div>
       </section>
-
-      {/* Another Product Grid - 2x2 layout */}
-      <section className="product-grid-four">
-        <div className="product-card">Item 1</div>
-        <div className="product-card">Item 2</div>
-        <div className="product-card">Item 3</div>
-        <div className="product-card">Item 4</div>
-      </section>
-
-      {/* Email Signup Section */}
-      <section className="newsletter-section">
-        <div className="newsletter-icon">📧</div>
-        <form className="newsletter-form">
-          <input type="email" placeholder="Enter your email" />
-          <button type="submit">Subscribe</button>
-        </form>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          {/* Footer links and info */}
-        </div>
-      </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
