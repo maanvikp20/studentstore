@@ -1,4 +1,7 @@
 @import './Home.scss';
+@import './components/Navbar.scss';
+@import './components/Footer.scss';
+@import './components/CustomOrders.scss';
 
 // Global Styles
 *,
@@ -7,6 +10,11 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+::selection {
+  background-color: $color-primary-dark;
+  color: $color-primary-light;
 }
 
 body {
