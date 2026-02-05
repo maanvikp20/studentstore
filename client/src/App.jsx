@@ -8,7 +8,7 @@ import CustomOrders from './pages/CustomOrders';
 import Login from './pages/Login';
 import Orders from './pages/Orders';
 import NotFound from './pages/NotFound';
-import css from './styles/css/index.css'
+import css from './SASS/index.scss';
 
 export default function App() {
   return (

@@ -33,9 +33,19 @@
   .page-links{
     display: flex;
     flex-direction: row;
-    background-color: 
-    .card{
-      background-color: #2baa32;
+    background-color: #41ff4b;
+    .links{
+      display: flex;
+      flex-direction: column;
+      .link{
+        background-color: #2baa32;
+        margin: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 40pt;
+        text-decoration: none;
+        color: whitesmoke;
+      }
     }
   }
 }
