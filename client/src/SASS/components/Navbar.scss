@@ -7,7 +7,8 @@ nav{
   width: 100vw;
   height: 60px;
   background-color: #2baa32;
-  .link{
+  
+  a{
     text-decoration: none;
     color: white;
     font-weight: bold;
@@ -15,7 +16,6 @@ nav{
     padding: 12px;
     margin: 0 10px;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
     background-color: #165519;
 
     .active :hover{

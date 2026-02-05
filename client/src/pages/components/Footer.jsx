@@ -5,7 +5,7 @@ export default function Footer   () {
     return(
         <footer>
             <p className="footer-text">
-                &copy; All rights reserved. Designed by Maanvik Poddar, Jose Pajon, and Montgomery McDonald.
+                &copy; All rights reserved. Designed by West-mec North East Campus.
             </p>
             <div>
                 <FaInstagram size={15} style={{color:"black", marginRight:"1rem"}}/>

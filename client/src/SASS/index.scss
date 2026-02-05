@@ -1,6 +1,7 @@
-@use './Home.scss';
-@use './components/Navbar.scss';
-@use './components/Footer.scss';
+@import './Home.scss';
+@import './components/Navbar.scss';
+@import './components/Footer.scss';
+@import './components/CustomOrders.scss';
 
 body{
   padding: 0;
