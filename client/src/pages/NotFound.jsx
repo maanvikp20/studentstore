@@ -5,7 +5,7 @@ const NotFound = () => {
   return (
     <div className="card">
         <h2>404 -- Page Not Found</h2>
-        <p className="small">That Route does not exist in this Page</p>
+        <p className="small">That Route does not exist</p>
         <Link className="link" to={'/'}>Go Home</Link>
     </div>
   )

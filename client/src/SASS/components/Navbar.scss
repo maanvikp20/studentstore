@@ -1,8 +1,9 @@
 nav{
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
+
   width: 100vw;
   height: 60px;
   background-color: #2baa32;
@@ -11,7 +12,7 @@ nav{
     color: white;
     font-weight: bold;
     font-size: .8rem;
-    padding: 2px;
+    padding: 12px;
     margin: 0 10px;
     border-radius: 5px;
     transition: background-color 0.3s ease;

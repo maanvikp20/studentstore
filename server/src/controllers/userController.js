@@ -42,7 +42,8 @@ async function updateUser(req, res, next){
             req.params.id, 
             {
                 name: req.body.name,
-                email: req.body.email
+                email: req.body.email,
+                cart: req.body.cart,
                 // Note: password updates should go through a separate secure endpoint
             }, 
             {new: true}

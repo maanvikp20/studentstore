@@ -1,71 +1,37 @@
 import React from 'react';
+import EmblaCarousel from './components/Carousel';
+import { NavLink } from "react-router-dom";
 
 const Home = () => {
   return (
     <div className="home">
-      {/* Banner Section */}
-      <section className="banner">
-        <h1>Your Banner Title Here</h1>
-      </section>
-
-      {/* About Us Section */}
-      <section className="about">
-        <h2>IT'S ABOUT US</h2>
-        <p>
-          Replace this text with your about us content. You can talk about your company, 
-          mission, values, or anything else you want to share with your customers.
-        </p>
-      </section>
-
-      {/* Carousel Section */}
-      <section className="carousel">
-        <p>Your product carousel will go here. Add your product slider/carousel component.</p>
-      </section>
-
-      {/* Two Column Section */}
-      <section className="two-col">
-        <div className="col-item large">
-          <img src="https://via.placeholder.com/400x400" alt="Gallery" />
-          <p>Replace with your image gallery</p>
+      <div className="section banner">
+        <img src="https://res.cloudinary.com/drg8btdmp/image/upload/v1770239503/Printer_ajkl0v.jpg" alt="" width="95%" height="400px"/>
+      </div>
+      <div className="section aboutUs">
+        <h2>About Us</h2>
+        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed, amet possimus exercitationem temporibus impedit obcaecati nulla expedita similique natus optio fugiat pariatur! Tempore, aliquid eius.</p>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis quas vitae quasi recusandae id delectus unde quod ut est, officia, asperiores ratione corporis suscipit cumque. Est dignissimos, odio vero quibusdam quod aliquid suscipit ducimus laborum beatae, quo neque atque ea.</p>
+        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Atque, repellendus.</p>
+      </div>
+      <div className="section carousel">
+      <h2>Featured Products</h2>
+        <div className="carousel-container">
+          {/* <EmblaCarousel slides={["Bob", "Jeff"]} settings={ { loop: true, delay: 3000 } }/> */}
         </div>
-        <div className="col-right">
-          <div className="col-item">
-            <h3>Custom Orders</h3>
-            <p>Add your custom orders content here</p>
-          </div>
-          <div className="col-item">
-            <h3>Blank Page</h3>
-            <p>Add any content you want here</p>
-          </div>
+      </div>
+      <div className="section page-links">
+        <div className="imageCard card">
+          <img src="https://placehold.co/400" alt="" />
         </div>
-      </section>
+        <div className="links card">
+          <NavLink className="link" to="/store"> Visit Store </NavLink>
+          <NavLink className="link" to="/custom-orders"> Custom Orders </NavLink>
+        </div>
+      </div>
+      <div className="section best-sellers">
 
-      {/* Best Sellers Section */}
-      <section className="best-sellers">
-        <h3>Best Sellers</h3>
-        <div className="products">
-          <div className="product">
-            <img src="https://via.placeholder.com/200x200" alt="Product 1" />
-            <h4>Product Name 1</h4>
-            <p>$99.99</p>
-          </div>
-          <div className="product">
-            <img src="https://via.placeholder.com/200x200" alt="Product 2" />
-            <h4>Product Name 2</h4>
-            <p>$79.99</p>
-          </div>
-          <div className="product">
-            <img src="https://via.placeholder.com/200x200" alt="Product 3" />
-            <h4>Product Name 3</h4>
-            <p>$89.99</p>
-          </div>
-          <div className="product">
-            <img src="https://via.placeholder.com/200x200" alt="Product 4" />
-            <h4>Product Name 4</h4>
-            <p>$109.99</p>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 };
