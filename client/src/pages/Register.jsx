@@ -22,7 +22,7 @@ function Register({ onLogin }) {
         setError(result.error);
       } else if (result.data) {
         onLogin(result.data.user, result.data.token);
-        navigate('/inventory');
+        navigate('/orders');
       }
     } catch (err) {
       setError('Failed to register. Please try again.');

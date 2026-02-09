@@ -30,7 +30,8 @@ export const authAPI = {
 export const inventoryAPI = {
   getAll: async () => {
     const response = await fetch(`${API_URL}/inventory`);
-    return response.json();
+    const data = await response.json()
+    return data
   },
 
   getById: async (id) => {

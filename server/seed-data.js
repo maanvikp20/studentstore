@@ -50,35 +50,35 @@ const users = [
 const inventoryItems = [
   {
     itemName: "Custom Phone Case",
-    itemPrice: "$15.99",
+    itemPrice: "15.99",
     amountInStock: 50,
     filament: "PLA",
     imageURL: "https://picsum.photos/400/400?random=1"
   },
   {
     itemName: "Desk Organizer",
-    itemPrice: "$22.50",
+    itemPrice: "22.50",
     amountInStock: 30,
     filament: "PETG",
     imageURL: "https://picsum.photos/400/400?random=2"
   },
   {
     itemName: "Phone Stand",
-    itemPrice: "$12.99",
+    itemPrice: "12.99",
     amountInStock: 75,
     filament: "PLA",
     imageURL: "https://picsum.photos/400/400?random=3"
   },
   {
     itemName: "Cable Management Clip",
-    itemPrice: "$8.99",
+    itemPrice: "8.99",
     amountInStock: 100,
     filament: "ABS",
     imageURL: "https://picsum.photos/400/400?random=4"
   },
   {
     itemName: "Keycap Set",
-    itemPrice: "$35.00",
+    itemPrice: "35.00",
     amountInStock: 20,
     filament: "PETG",
     imageURL: "https://picsum.photos/400/400?random=5"
@@ -92,8 +92,8 @@ const getOrdersData = (userIds) => [
     customerName: "Alice Johnson",
     customerEmail: "alice@example.com",
     orderDetails: [
-      { item: "Custom Phone Case", quantity: 2, price: "$15.99" },
-      { item: "Phone Stand", quantity: 1, price: "$12.99" }
+      { item: "Custom Phone Case", quantity: 2, price: "15.99" },
+      { item: "Phone Stand", quantity: 1, price: "12.99" }
     ]
   },
   {
@@ -101,7 +101,7 @@ const getOrdersData = (userIds) => [
     customerName: "Bob Smith",
     customerEmail: "bob@example.com",
     orderDetails: [
-      { item: "Desk Organizer", quantity: 1, price: "$22.50" }
+      { item: "Desk Organizer", quantity: 1, price: "22.50" }
     ]
   },
   {
@@ -109,8 +109,8 @@ const getOrdersData = (userIds) => [
     customerName: "Charlie Brown",
     customerEmail: "charlie@example.com",
     orderDetails: [
-      { item: "Cable Management Clip", quantity: 5, price: "$8.99" },
-      { item: "Phone Stand", quantity: 2, price: "$12.99" }
+      { item: "Cable Management Clip", quantity: 5, price: "8.99" },
+      { item: "Phone Stand", quantity: 2, price: "12.99" }
     ]
   },
   {
@@ -118,7 +118,7 @@ const getOrdersData = (userIds) => [
     customerName: "Diana Martinez",
     customerEmail: "diana@example.com",
     orderDetails: [
-      { item: "Keycap Set", quantity: 1, price: "$35.00" }
+      { item: "Keycap Set", quantity: 1, price: "35.00" }
     ]
   },
   {
@@ -126,8 +126,8 @@ const getOrdersData = (userIds) => [
     customerName: "Alice Johnson",
     customerEmail: "alice@example.com",
     orderDetails: [
-      { item: "Desk Organizer", quantity: 2, price: "$22.50" },
-      { item: "Custom Phone Case", quantity: 1, price: "$15.99" }
+      { item: "Desk Organizer", quantity: 2, price: "22.50" },
+      { item: "Custom Phone Case", quantity: 1, price: "15.99" }
     ]
   }
 ];

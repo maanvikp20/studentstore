@@ -29,9 +29,6 @@ const Home = () => {
           <NavLink className="link" to="/custom-orders"> Custom Orders </NavLink>
         </div>
       </div>
-      <div className="section best-sellers">
-
-      </div>
     </div>
   );
 };

@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 const inventorySchema = new mongoose.Schema({
     itemName: { type: String, required: true, trim: true, maxlenth: 80 },
-    itemPrice: { type: String, required: true, unique: true, lowercase: true, trim: true},
+    itemPrice: { type: Number, required: true,},
     amountInStock: {type: Number, required: true},
     filament: {type: String, required: true, enum:["PLA", "PETG", "ABS"]},
     imageURL: {type: String, required: true, trim:true}

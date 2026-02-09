@@ -4,6 +4,7 @@
   padding: 2rem;
   align-items: center;
   height: fit-content;
+
   .section{
     background-color: #41ff4b;
     display: flex;
@@ -14,12 +15,12 @@
     width: 70vw;
     margin: 2rem;
     padding: 1rem;
-
   }
+
   .banner{
+
     img{
-      margin: 2rem;
-      border-radius: 3rem
+      border-radius: 2rem
     }
   }
 
@@ -29,13 +30,16 @@
     flex-direction: row;
     justify-content: space-evenly;
   }
+
   .page-links{
     display: flex;
     flex-direction: row;
     background-color: #41ff4b;
+
     .links{
       display: flex;
       flex-direction: column;
+
       .link{
         background-color: #2baa32;
         margin: 0.5rem;
