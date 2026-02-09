@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../utils/api';
 
-function Login({ onLogin }) {
+function Register({ onLogin }) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,7 +16,7 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const result = await authAPI.login(email, password);
+      const result = await authAPI.register(name, email, password);
       
       if (result.error) {
         setError(result.error);
@@ -24,7 +25,7 @@ function Login({ onLogin }) {
         navigate('/inventory');
       }
     } catch (err) {
-      setError('Failed to login. Please try again.');
+      setError('Failed to register. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -34,10 +35,22 @@ function Login({ onLogin }) {
     <div className="auth-page">
       <div className="auth-container">
         <div className="auth-card">
-          <h1>Welcome Back</h1>
-          <p className="auth-subtitle">Login to your account</p>
+          <h1>Create Account</h1>
+          <p className="auth-subtitle">Join our 3D printing community</p>
 
           <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="John Doe"
+              />
+            </div>
+
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <input
@@ -59,18 +72,19 @@ function Login({ onLogin }) {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
+                minLength="6"
               />
             </div>
 
             {error && <div className="error-message">{error}</div>}
 
             <button type="submit" className="btn btn--primary btn--full" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? 'Creating account...' : 'Register'}
             </button>
           </form>
 
           <p className="auth-footer">
-            Don't have an account? <Link to="/register">Register here</Link>
+            Already have an account? <Link to="/login">Login here</Link>
           </p>
         </div>
       </div>
@@ -78,4 +92,4 @@ function Login({ onLogin }) {
   );
 }
 
-export default Login;
+export default Register;

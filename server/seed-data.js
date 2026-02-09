@@ -222,21 +222,21 @@ const getTestimonialsData = (userIds) => [
 async function seedDatabase() {
   try {
     // Connect to MongoDB
-    console.log('🔌 Connecting to MongoDB...');
+    console.log('Connecting to MongoDB...');
     await mongoose.connect(process.env.MONGODB_URI_JOSE);
-    console.log('✅ MongoDB Connected\n');
+    console.log('MongoDB Connected\n');
 
     // Clear existing data
-    console.log('🗑️  Clearing existing data...');
+    console.log('Clearing existing data...');
     await User.deleteMany({});
     await Inventory.deleteMany({});
     await Order.deleteMany({});
     await CustomOrder.deleteMany({});
     await Testimonial.deleteMany({});
-    console.log('✅ Existing data cleared\n');
+    console.log('Existing data cleared\n');
 
     // 1. Create Users
-    console.log('👥 Creating users...');
+    console.log('Creating users...');
     const createdUsers = [];
     for (const userData of users) {
       const passwordHash = await bcrypt.hash(userData.password, 12);
@@ -252,63 +252,63 @@ async function seedDatabase() {
     console.log(`✅ ${createdUsers.length} users created\n`);
 
     // 2. Create Inventory Items
-    console.log('📦 Creating inventory items...');
+    console.log('Creating inventory items...');
     const createdInventory = await Inventory.insertMany(inventoryItems);
     createdInventory.forEach(item => {
       console.log(`   ✓ Created item: ${item.itemName}`);
     });
-    console.log(`✅ ${createdInventory.length} inventory items created\n`);
+    console.log(`Created ${createdInventory.length} inventory items\n`);
 
     // 3. Create Orders
-    console.log('🛒 Creating orders...');
+    console.log('Creating orders...');
     const ordersData = getOrdersData(userIds);
     const createdOrders = await Order.insertMany(ordersData);
     createdOrders.forEach(order => {
       console.log(`   ✓ Created order for: ${order.customerName}`);
     });
-    console.log(`✅ ${createdOrders.length} orders created\n`);
+    console.log(`Created ${createdOrders.length} orders\n`);
 
     // 4. Create Custom Orders
-    console.log('🎨 Creating custom orders...');
+    console.log('Creating custom orders...');
     const customOrdersData = getCustomOrdersData(userIds);
     const createdCustomOrders = await CustomOrder.insertMany(customOrdersData);
     createdCustomOrders.forEach(order => {
       console.log(`   ✓ Created custom order for: ${order.customerName}`);
     });
-    console.log(`✅ ${createdCustomOrders.length} custom orders created\n`);
+    console.log(`Created ${createdCustomOrders.length} custom orders\n`);
 
     // 5. Create Testimonials
-    console.log('⭐ Creating testimonials...');
+    console.log('Creating testimonials...');
     const testimonialsData = getTestimonialsData(userIds);
     const createdTestimonials = await Testimonial.insertMany(testimonialsData);
     createdTestimonials.forEach(testimonial => {
       console.log(`   ✓ Created testimonial by: ${testimonial.writerName}`);
     });
-    console.log(`✅ ${createdTestimonials.length} testimonials created\n`);
+    console.log(`Created ${createdTestimonials.length} testimonials\n`);
 
     // Summary
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎉 DATABASE SEEDED SUCCESSFULLY!');
+    console.log('DATABASE SEEDED SUCCESSFULLY!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`   👥 Users: ${createdUsers.length}`);
-    console.log(`   📦 Inventory Items: ${createdInventory.length}`);
-    console.log(`   🛒 Orders: ${createdOrders.length}`);
-    console.log(`   🎨 Custom Orders: ${createdCustomOrders.length}`);
-    console.log(`   ⭐ Testimonials: ${createdTestimonials.length}`);
+    console.log(`   Users: ${createdUsers.length}`);
+    console.log(`   Inventory Items: ${createdInventory.length}`);
+    console.log(`   Orders: ${createdOrders.length}`);
+    console.log(`   Custom Orders: ${createdCustomOrders.length}`);
+    console.log(`   Testimonials: ${createdTestimonials.length}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-    console.log('📝 TEST LOGIN CREDENTIALS:');
+    console.log('TEST LOGIN CREDENTIALS:');
     console.log('   Email: alice@example.com');
     console.log('   Password: password123');
     console.log('   (All users have the same password)\n');
 
     // Disconnect
     await mongoose.disconnect();
-    console.log('✅ Disconnected from MongoDB');
+    console.log('Disconnected from MongoDB');
     process.exit(0);
 
   } catch (error) {
-    console.error('❌ Error seeding database:', error);
+    console.error('Error seeding database:', error);
     process.exit(1);
   }
 }
