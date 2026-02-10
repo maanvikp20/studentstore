@@ -3,11 +3,49 @@
 @import './components/Footer.scss';
 @import './components/CustomOrders.scss';
 @import './components/Login.scss';
+@import './Inventory.scss';
+@import './components/Cart.scss';
+@import './components/Admin.scss';
 
 body{
   padding: 0;
   margin: 0;
+  background-color: #0d330f;
+  color: white;
 }
 main{
   height: fit-content;
+}
+
+.auth-card{
+  background-color: #0d330f;
+}
+
+.btn{
+    display: flex;
+    gap: 10px;
+    background-color: #2baa32;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.6rem;
+    cursor: pointer;
+    font-size: .6rem;
+    border-radius: .5rem;
+    width: 4.3rem;
+
+    &:hover{
+        background-color: #1a661e;
+    }
+}
+
+.section{
+  background-color: #41ff4b;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 2rem;
+  margin: 2rem;
+  padding: 1rem;
+  box-shadow: 7.5px 7.5px 7.5px #2baa32;
 }

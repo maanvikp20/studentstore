@@ -1,40 +1,16 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
-export default function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [isAdmin, setIsAdmin] = React.useState(false);
-  
-  // 1. Uncomment and initialize navigate
+export default function Navbar({ user, onLogout }) {
   const navigate = useNavigate();
 
-  // 2. Check for auth status on mount
-  React.useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userString = localStorage.getItem("user");
-    
-    setIsLoggedIn(!!token);
-
-    if (userString) {
-      try {
-        const userData = JSON.parse(userString);
-        setIsAdmin(userData?.role === "admin");
-      } catch (e) {
-        console.error("Error parsing user data", e);
-      }
-    }
-  }, []);
-
   const logout = () => {
-    // 3. Clear storage and state
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setIsLoggedIn(false);
-    setIsAdmin(false);
-    
-    // 4. Redirect to login
+    onLogout();
     navigate("/login");
   };
+
+  const isAdmin = user?.role === "admin";
+  const isLoggedIn = !!user;
 
   return (
     <header className="nav">
@@ -86,9 +62,9 @@ export default function Navbar() {
             <>
               <NavLink
                 className={({ isActive }) => "link" + (isActive ? " active" : "")}
-                to="/orders"
+                to="/profile"
               >
-                My Orders
+                Profile
               </NavLink>
               
               {isAdmin && (
@@ -100,7 +76,7 @@ export default function Navbar() {
                 </NavLink>
               )}
 
-              <button className="btn btn--link" onClick={logout}>
+              <button className=" link" onClick={logout}>
                 Logout
               </button>
             </>

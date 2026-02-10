@@ -7,6 +7,25 @@ nav{
   width: 100vw;
   height: 60px;
   background-color: #2baa32;
+
+  .personal-menu{
+    display: flex;
+  }
+
+
+  .link{
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    font-size: .8rem;
+    padding: 12px;
+    margin: 0 10px;
+    border-radius: 5px;
+    background-color: #165519;
+    &:hover{
+        background-color: #55bb5b;
+    }
+  }
   
   a{
     text-decoration: none;
@@ -19,7 +38,7 @@ nav{
     background-color: #165519;
 
     .active :hover{
-      background-color: #0d330f;
+      background-color: 55bb5b;
       color: beige;
     }
   }

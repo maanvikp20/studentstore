@@ -9,9 +9,12 @@ const User = require('../models/User');
  */
 
 function signToken(user){
-    // JWT best practices: use 'sub' for subject (user id)
     return jwt.sign(
-        {email: user.email, name: user.name},
+        {
+          email: user.email, 
+          name: user.name,
+          role: user.role
+        },
         process.env.JWT_SECRET,
         {
             subject: String(user._id), 
@@ -75,40 +78,38 @@ async function register(req, res, next){
 
 // POST /api/auth/login
 async function login(req, res, next){
+    console.log('📥 Login Request:')
+    console.log('   Headers:', req.headers);
+    console.log('   Body:', req.body);
+    console.log('   Body type:', typeof req.body);
+    
     try{
-        // DEBUG: Log what we're receiving
-        console.log('📥 Login Request:');
-        console.log('   Body:', req.body);
-        
-        if (!req.body) {
-            return res.status(400).json({error: "Request body is missing"});
-        }
-
         const {email, password} = req.body;
         if(!email || !password){
             return res.status(400).json({error: "email and password are required"});
         }
         
-        // Find user by email
         const user = await User.findOne({email: email.toLowerCase()});
         if(!user) return res.status(401).json({error: "Invalid Credentials"});
         
-        // Compare password with hashed password
         const ok = await bcrypt.compare(password, user.passwordHash);
         if(!ok) return res.status(401).json({error: "Invalid Credentials"});
         
         const token = signToken(user);
 
-        console.log('✅ User logged in successfully:', user.email);
-
         res.json({
             data: {
                 token,
-                user: { id: user._id, name: user.name, email: user.email }
+                user: { 
+                  id: user._id, 
+                  name: user.name, 
+                  email: user.email,
+                  role: user.role,
+                  cart: user.cart
+                }
             }
         });
     }catch(err){
-        console.log('❌ Login error:', err);
         next(err)
     }
 }

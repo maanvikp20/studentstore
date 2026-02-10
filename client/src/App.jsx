@@ -11,7 +11,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Inventory from "./pages/Inventory";
-import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
 import CustomOrders from "./pages/CustomOrders";
 import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
@@ -23,12 +23,34 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [cart, setCart] = useState([]);
 
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (e) {
+        console.error("Error loading cart:", e);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (token) {
-      const userData = JSON.parse(localStorage.getItem("user"));
-      setUser(userData);
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        try {
+          setUser(JSON.parse(userData));
+        } catch (e) {
+          console.error("Error loading user:", e);
+        }
+      }
     }
   }, [token]);
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const handleLogin = (userData, authToken) => {
     localStorage.setItem("token", authToken);
@@ -40,6 +62,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("cart");
     setToken(null);
     setUser(null);
     setCart([]);
@@ -60,6 +83,7 @@ function App() {
   return (
     <div className="app">
       <Navbar user={user} onLogout={handleLogout} cartCount={cart.length} />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
@@ -85,13 +109,13 @@ function App() {
         />
         <Route
           path="/inventory"
-          element={<Inventory addToCart={addToCart} />}
+          element={<Inventory addToCart={addToCart} user={user} />}
         />
         <Route
-          path="/orders"
+          path="/profile"
           element={
             user ? (
-              <Orders token={token} user={user} />
+              <Profile token={token} user={user} />
             ) : (
               <Navigate to="/login" />
             )
@@ -125,6 +149,7 @@ function App() {
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
+
       <Footer />
     </div>
   );

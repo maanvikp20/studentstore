@@ -12,15 +12,19 @@ function requireAuth(req,res,next) {
 
         const payload = jwt.verify(token, process.env.JWT_SECRET)
 
-        // Attach authenticated user to request for controllers to use
-        // Payload.sub = _id from mongoDB
-        req.user = {id:payload.sub, email:payload.email, name:payload.name};
+        req.user = {
+          id: payload.sub, 
+          email: payload.email, 
+          name: payload.name,
+          role: payload.role,
+          cart: payload.cart
+        };
         next();
-
 
     }catch(err){
         console.log("Auth Middleware Error:", err)
         return res.status(401).json({error:"Unauthorized"})
     }
 }
+
 module.exports = {requireAuth};

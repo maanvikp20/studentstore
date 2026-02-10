@@ -13,13 +13,7 @@ const Home = () => {
         <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed, amet possimus exercitationem temporibus impedit obcaecati nulla expedita similique natus optio fugiat pariatur! Tempore, aliquid eius.</p>
         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis quas vitae quasi recusandae id delectus unde quod ut est, officia, asperiores ratione corporis suscipit cumque. Est dignissimos, odio vero quibusdam quod aliquid suscipit ducimus laborum beatae, quo neque atque ea.</p>
         <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Atque, repellendus.</p>
-      </div>
-      <div className="section carousel">
-      <h2>Featured Products</h2>
-        <div className="carousel-container">
-          {/* <EmblaCarousel slides={["Bob", "Jeff"]} settings={ { loop: true, delay: 3000 } }/> */}
-        </div>
-      </div>
+      </div>  
       <div className="section page-links">
         <div className="imageCard card">
           <img src="https://placehold.co/400" alt="" />

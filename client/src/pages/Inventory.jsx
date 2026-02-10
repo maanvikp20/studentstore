@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { FaCheck, FaTimes } from 'react-icons/fa';
-import { inventoryAPI } from '../utils/api';
+import React, { useState, useEffect } from "react";
+import { FaCheck, FaTimes } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { inventoryAPI } from "../utils/api";
 
-function Inventory({ addToCart }) {
+function Inventory({ addToCart, user }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -16,13 +18,19 @@ function Inventory({ addToCart }) {
       const data = await inventoryAPI.getAll();
       setProducts(data || []);
     } catch (err) {
-      setError('Failed to load products');
+      setError("Failed to load products");
     } finally {
       setLoading(false);
     }
   };
 
   const handleAddToCart = (product) => {
+    if (!user) {
+      alert("Please login to add items to cart");
+      navigate("/login");
+      return;
+    }
+
     addToCart(product);
     alert(`${product.itemName} added to cart!`);
   };
@@ -37,17 +45,19 @@ function Inventory({ addToCart }) {
 
   return (
     <div className="inventory-page">
-      <div className="container">
-        <h1>Shop Our Products</h1>
+      <div className="container inventory-container">
+        <div className='section'>
+          <h1>Shop Our Products</h1>
+        </div>
         
         {products.length === 0 ? (
           <p className="no-data">No products available at the moment.</p>
         ) : (
           <div className="product-grid">
             {products.map((product) => (
-              <div key={product._id} className="product-card">
+              <div key={product._id} className="product-card section">
                 <div className="product-card-image">
-                  <img src={product.imageURL} alt={product.itemName} />
+                  <img className  src={product.imageURL} alt={product.itemName} />
                 </div>
                 <div className="product-card-content">
                   <h3>{product.itemName}</h3>

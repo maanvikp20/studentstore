@@ -34,6 +34,8 @@ function Login({ onLogin }) {
     <div className="auth-page">
       <div className="auth-container">
         <div className="auth-card">
+          <div className="section">
+
           <h1>Welcome Back</h1>
           <p className="auth-subtitle">Login to your account</p>
 
@@ -47,7 +49,7 @@ function Login({ onLogin }) {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="your@email.com"
-              />
+                />
             </div>
 
             <div className="form-group">
@@ -72,6 +74,7 @@ function Login({ onLogin }) {
           <p className="auth-footer">
             Don't have an account? <Link to="/register">Register here</Link>
           </p>
+          </div>
         </div>
       </div>
     </div>

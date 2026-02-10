@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaTrash } from 'react-icons/fa';
 import { ordersAPI } from '../utils/api';
+import { FaCartShopping } from "react-icons/fa6";
 
 function Cart({ cart, removeFromCart, clearCart, token, user }) {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ function Cart({ cart, removeFromCart, clearCart, token, user }) {
       if (result.data) {
         alert('Order placed successfully!');
         clearCart();
-        navigate('/orders');
+        navigate('/profile');
       }
     } catch (err) {
       alert('Failed to place order. Please try again.');
@@ -47,7 +48,7 @@ function Cart({ cart, removeFromCart, clearCart, token, user }) {
   return (
     <div className="cart-page">
       <div className="container">
-        <h1>Shopping Cart</h1>
+        <h1><FaCartShopping /> Shopping Cart</h1>
 
         {cart.length === 0 ? (
           <div className="no-data">
@@ -58,7 +59,7 @@ function Cart({ cart, removeFromCart, clearCart, token, user }) {
           <>
             <div className="cart-items">
               {cart.map((item, index) => (
-                <div key={index} className="cart-item">
+                <div key={index} className="cart-item section">
                   <div className="cart-item-image">
                     <img src={item.imageURL} alt={item.itemName} />
                   </div>

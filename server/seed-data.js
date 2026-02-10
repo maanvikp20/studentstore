@@ -22,27 +22,32 @@ const users = [
   {
     name: "Alice Johnson",
     email: "alice@example.com",
-    password: "password123"
+    password: "password123",
+    role: "admin"
   },
   {
     name: "Bob Smith",
     email: "bob@example.com",
-    password: "password123"
+    password: "password123",
+    role: "user"
   },
   {
     name: "Charlie Brown",
     email: "charlie@example.com",
-    password: "password123"
+    password: "password123",
+    role: "user"
   },
   {
     name: "Diana Martinez",
     email: "diana@example.com",
-    password: "password123"
+    password: "password123",
+    role: "user"
   },
   {
     name: "Ethan Davis",
     email: "ethan@example.com",
-    password: "password123"
+    password: "password123",
+    role: "user"
   }
 ];
 
@@ -243,7 +248,8 @@ async function seedDatabase() {
       const user = await User.create({
         name: userData.name,
         email: userData.email,
-        passwordHash
+        passwordHash,
+        role: userData.role || "user"
       });
       createdUsers.push(user);
       console.log(`   ✓ Created user: ${user.name}`);
@@ -273,7 +279,7 @@ async function seedDatabase() {
     const customOrdersData = getCustomOrdersData(userIds);
     const createdCustomOrders = await CustomOrder.insertMany(customOrdersData);
     createdCustomOrders.forEach(order => {
-      console.log(`   ✓ Created custom order for: ${order.customerName}`);
+      console.log(`✓ Created custom order for: ${order.customerName}`);
     });
     console.log(`Created ${createdCustomOrders.length} custom orders\n`);
 
@@ -282,7 +288,7 @@ async function seedDatabase() {
     const testimonialsData = getTestimonialsData(userIds);
     const createdTestimonials = await Testimonial.insertMany(testimonialsData);
     createdTestimonials.forEach(testimonial => {
-      console.log(`   ✓ Created testimonial by: ${testimonial.writerName}`);
+      console.log(`✓ Created testimonial by: ${testimonial.writerName}`);
     });
     console.log(`Created ${createdTestimonials.length} testimonials\n`);
 
@@ -290,11 +296,11 @@ async function seedDatabase() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('DATABASE SEEDED SUCCESSFULLY!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`   Users: ${createdUsers.length}`);
-    console.log(`   Inventory Items: ${createdInventory.length}`);
-    console.log(`   Orders: ${createdOrders.length}`);
-    console.log(`   Custom Orders: ${createdCustomOrders.length}`);
-    console.log(`   Testimonials: ${createdTestimonials.length}`);
+    console.log(`✓ Users: ${createdUsers.length}`);
+    console.log(`✓ Inventory Items: ${createdInventory.length}`);
+    console.log(`✓ Orders: ${createdOrders.length}`);
+    console.log(`✓ Custom Orders: ${createdCustomOrders.length}`);
+    console.log(`✓ Testimonials: ${createdTestimonials.length}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
     console.log('TEST LOGIN CREDENTIALS:');

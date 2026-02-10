@@ -1,0 +1,49 @@
+.admin-table{
+    color: white;
+    background-color: #1a661e;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    table{
+        width: 80%;
+        border-collapse: collapse;
+        gap: .1rem;
+        padding: 20px;
+
+        tr{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+
+            &:nth-child(odd){
+                background-color: #2a8c2e;
+            }
+            &:nth-child(even){
+                background-color: #1bb723;
+            }
+                .btn-danger{
+                    background-color: #dc3545;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    cursor: pointer;
+        
+                    &:hover{
+                        background-color: #c82333;
+                    }
+                }
+            
+
+            th, td{
+                padding: 10px;
+                text-align: left;
+            }
+        }
+    }
+}
