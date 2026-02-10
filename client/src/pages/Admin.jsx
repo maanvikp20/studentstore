@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaTrash } from 'react-icons/fa';
 import { usersAPI, ordersAPI } from '../utils/api';
 
 function Admin({ token }) {
@@ -106,10 +107,10 @@ function Admin({ token }) {
                           <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                           <td>
                             <button 
-                              className="btn btn--danger btn--small"
+                              className="btn btn-danger btn-small"
                               onClick={() => handleDeleteUser(user._id)}
                             >
-                              Delete
+                              <FaTrash />
                             </button>
                           </td>
                         </tr>
@@ -145,10 +146,10 @@ function Admin({ token }) {
                           <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                           <td>
                             <button 
-                              className="btn btn--danger btn--small"
+                              className="btn btn-danger btn-small"
                               onClick={() => handleDeleteOrder(order._id)}
                             >
-                              Delete
+                              <FaTrash />
                             </button>
                           </td>
                         </tr>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaTrash } from 'react-icons/fa';
 import { ordersAPI } from '../utils/api';
 
 function Cart({ cart, removeFromCart, clearCart, token, user }) {
@@ -34,7 +35,7 @@ function Cart({ cart, removeFromCart, clearCart, token, user }) {
       if (result.data) {
         alert('Order placed successfully!');
         clearCart();
-        navigate('/inventory');
+        navigate('/orders');
       }
     } catch (err) {
       alert('Failed to place order. Please try again.');
@@ -51,53 +52,53 @@ function Cart({ cart, removeFromCart, clearCart, token, user }) {
         {cart.length === 0 ? (
           <div className="no-data">
             <p>Your cart is empty</p>
-            <a href="/inventory" className="btn btn--primary">Continue Shopping</a>
+            <a href="/inventory" className="btn btn-primary">Continue Shopping</a>
           </div>
         ) : (
           <>
             <div className="cart-items">
               {cart.map((item, index) => (
                 <div key={index} className="cart-item">
-                  <div className="cart-item__image">
+                  <div className="cart-item-image">
                     <img src={item.imageURL} alt={item.itemName} />
                   </div>
-                  <div className="cart-item__details">
+                  <div className="cart-item-details">
                     <h3>{item.itemName}</h3>
-                    <p className="cart-item__filament">
+                    <p className="cart-item-filament">
                       <span className="badge">{item.filament}</span>
                     </p>
                   </div>
-                  <div className="cart-item__price">
+                  <div className="cart-item-price">
                     ${item.itemPrice}
                   </div>
                   <button 
-                    className="btn btn--danger btn--small"
+                    className="btn btn-danger btn-small"
                     onClick={() => removeFromCart(index)}
                   >
-                    Remove
+                    <FaTrash />
                   </button>
                 </div>
               ))}
             </div>
 
             <div className="cart-summary">
-              <div className="cart-summary__row">
+              <div className="cart-summary-row">
                 <span>Subtotal:</span>
                 <span>${total.toFixed(2)}</span>
               </div>
-              <div className="cart-summary__row cart-summary__total">
+              <div className="cart-summary-row cart-summary-total">
                 <span>Total:</span>
                 <span>${total.toFixed(2)}</span>
               </div>
               <button 
-                className="btn btn--primary btn--full"
+                className="btn btn-primary btn-full"
                 onClick={handleCheckout}
                 disabled={loading}
               >
                 {loading ? 'Processing...' : 'Checkout'}
               </button>
               <button 
-                className="btn btn--secondary btn--full"
+                className="btn btn-secondary btn-full"
                 onClick={clearCart}
               >
                 Clear Cart

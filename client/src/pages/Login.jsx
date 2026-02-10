@@ -58,13 +58,13 @@ function Login({ onLogin }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="••••••••"
+                placeholder="Enter password"
               />
             </div>
 
             {error && <div className="error-message">{error}</div>}
 
-            <button type="submit" className="btn btn--primary btn--full" disabled={loading}>
+            <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>

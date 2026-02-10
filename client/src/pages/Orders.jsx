@@ -1,45 +1,96 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import { FaTrash } from 'react-icons/fa';
 import { ordersAPI } from '../utils/api';
 
-const Orders = () => {
-  const [orders, setOrders] = React.useState([]);
+function Orders({ token, user }) {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  if(orders.length === 0){
-    console.log("No orders found");
-    ordersAPI.getAll().then(data => {
-      setOrders(data);
-    })
-  }
+  useEffect(() => {
+    if (token) {
+      fetchOrders();
+    }
+  }, [token]);
 
-  if(orders.length > 0){
-    console.log(orders);
-  }
+  const fetchOrders = async () => {
+    try {
+      const result = await ordersAPI.getAll(token);
+      setOrders(result.data || []);
+    } catch (err) {
+      setError('Failed to load orders');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (!token) {
-      alert('Please login to place an order');
-      navigate('/login');
-      return;
+  const handleDeleteOrder = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this order?')) return;
+
+    try {
+      await ordersAPI.delete(token, id);
+      setOrders(orders.filter(order => order._id !== id));
+      alert('Order deleted successfully');
+    } catch (err) {
+      alert('Failed to delete order');
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Loading orders...</div>;
   }
 
   return (
-    <div>
-      <h1>Orders</h1>
-      {orders.length === 0 ? (
-        <p>No orders found.</p>
-        ) :(
-        <ul>
-          {orders.map((order) => (
-            <li key={order.id}>
-              <p>Order ID: {order.id}</p>
-              <p>Product: {order.productName}</p>
-              <p>Quantity: {order.quantity}</p>
-              <p>Total Price: ${order.totalPrice}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="orders-page">
+      <div className="container">
+        <h1>My Orders</h1>
+
+        {error && <div className="error-message">{error}</div>}
+
+        {orders.length === 0 ? (
+          <div className="no-data">
+            <p>You haven't placed any orders yet.</p>
+            <a href="/inventory" className="btn btn-primary">Start Shopping</a>
+          </div>
+        ) : (
+          <div className="orders-list">
+            {orders.map((order) => (
+              <div key={order._id} className="order-card">
+                <div className="order-card-header">
+                  <div>
+                    <h3>Order #{order._id.slice(-6)}</h3>
+                    <p className="order-card-date">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button 
+                    className="btn btn-danger btn-small"
+                    onClick={() => handleDeleteOrder(order._id)}
+                  >
+                    <FaTrash /> Delete
+                  </button>
+                </div>
+                
+                <div className="order-card-body">
+                  <p><strong>Customer:</strong> {order.customerName}</p>
+                  <p><strong>Email:</strong> {order.customerEmail}</p>
+                  
+                  <div className="order-card-details">
+                    <strong>Items:</strong>
+                    <ul>
+                      {order.orderDetails.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }
 
-export default Orders
+export default Orders;

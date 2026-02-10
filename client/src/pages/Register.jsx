@@ -22,7 +22,7 @@ function Register({ onLogin }) {
         setError(result.error);
       } else if (result.data) {
         onLogin(result.data.user, result.data.token);
-        navigate('/orders');
+        navigate('/inventory');
       }
     } catch (err) {
       setError('Failed to register. Please try again.');
@@ -71,14 +71,14 @@ function Register({ onLogin }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="••••••••"
+                placeholder="Enter password"
                 minLength="6"
               />
             </div>
 
             {error && <div className="error-message">{error}</div>}
 
-            <button type="submit" className="btn btn--primary btn--full" disabled={loading}>
+            <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
               {loading ? 'Creating account...' : 'Register'}
             </button>
           </form>

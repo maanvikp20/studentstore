@@ -4,20 +4,35 @@ import { NavLink, useNavigate } from "react-router-dom";
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isAdmin, setIsAdmin] = React.useState(false);
-//   const navigate = useNavigate();
+  
+  // 1. Uncomment and initialize navigate
+  const navigate = useNavigate();
 
+  // 2. Check for auth status on mount
   React.useEffect(() => {
     const token = localStorage.getItem("token");
+    const userString = localStorage.getItem("user");
+    
     setIsLoggedIn(!!token);
 
-    const userData = JSON.parse(localStorage.getItem("user"));
-    setIsAdmin(userData?.role === "admin");
+    if (userString) {
+      try {
+        const userData = JSON.parse(userString);
+        setIsAdmin(userData?.role === "admin");
+      } catch (e) {
+        console.error("Error parsing user data", e);
+      }
+    }
   }, []);
 
-
   const logout = () => {
+    // 3. Clear storage and state
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
+    setIsAdmin(false);
+    
+    // 4. Redirect to login
     navigate("/login");
   };
 
@@ -46,10 +61,12 @@ export default function Navbar() {
             </NavLink>
           </div>
         </div>
+
         <div className="logo-section">
           <div className="logo"></div>
           <div className="brand">3D Print Store</div>
         </div>
+
         <div className="personal-menu">
           <NavLink
             className={({ isActive }) => "link" + (isActive ? " active" : "")}
@@ -58,35 +75,35 @@ export default function Navbar() {
             Cart
           </NavLink>
         
-        {!isLoggedIn && (
-          <NavLink
-            className={({ isActive }) => "link" + (isActive ? " active" : "")}
-            to="/login"
-          >
-            Login
-          </NavLink>
-        )}
+          {!isLoggedIn ? (
+            <NavLink
+              className={({ isActive }) => "link" + (isActive ? " active" : "")}
+              to="/login"
+            >
+              Login
+            </NavLink>
+          ) : (
+            <>
+              <NavLink
+                className={({ isActive }) => "link" + (isActive ? " active" : "")}
+                to="/orders"
+              >
+                My Orders
+              </NavLink>
+              
+              {isAdmin && (
+                <NavLink
+                  className={({ isActive }) => "link" + (isActive ? " active" : "")}
+                  to="/admin"
+                >
+                  Admin Panel
+                </NavLink>
+              )}
 
-          {isLoggedIn && (
-            <NavLink
-              className={({ isActive }) => "link" + (isActive ? " active" : "")}
-              to="/orders"
-            >
-              My Orders
-            </NavLink>
-          )}
-          {isAdmin && (
-            <NavLink
-              className={({ isActive }) => "link" + (isActive ? " active" : "")}
-              to="/admin"
-            >
-              Admin Panel
-            </NavLink>
-          )}
-          {isLoggedIn && (
-            <button className="btn btn--link" onClick={logout}>
-              Logout
-            </button>
+              <button className="btn btn--link" onClick={logout}>
+                Logout
+              </button>
+            </>
           )}
         </div>
       </nav>
