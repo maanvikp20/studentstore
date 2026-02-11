@@ -1,12 +1,12 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
-export default function Navbar({ user, onLogout }) {
+export default function Navbar({ user, onLogout, cartCount = 0 }) {
   const navigate = useNavigate();
 
   const logout = () => {
     onLogout();
-    navigate("/login");
+    navigate("/home");
   };
 
   const isAdmin = user?.role === "admin";
@@ -29,12 +29,14 @@ export default function Navbar({ user, onLogout }) {
             >
               Inventory
             </NavLink>
-            <NavLink
-              className={({ isActive }) => "link" + (isActive ? " active" : "")}
-              to="/custom-orders"
-            >
-              Custom Orders
-            </NavLink>
+            {isLoggedIn && (
+              <NavLink
+                className={({ isActive }) => "link" + (isActive ? " active" : "")}
+                to="/custom-orders"
+              >
+                Custom Orders
+              </NavLink>
+            )}
           </div>
         </div>
 
@@ -44,12 +46,14 @@ export default function Navbar({ user, onLogout }) {
         </div>
 
         <div className="personal-menu">
-          <NavLink
-            className={({ isActive }) => "link" + (isActive ? " active" : "")}
-            to="/cart"
-          >
-            Cart
-          </NavLink>
+          {isLoggedIn && (
+            <NavLink
+              className={({ isActive }) => "link" + (isActive ? " active" : "")}
+              to="/cart"
+            >
+              Cart {cartCount > 0 && `(${cartCount})`}
+            </NavLink>
+          )}
         
           {!isLoggedIn ? (
             <NavLink
@@ -76,7 +80,7 @@ export default function Navbar({ user, onLogout }) {
                 </NavLink>
               )}
 
-              <button className=" link" onClick={logout}>
+              <button className="link" onClick={logout}>
                 Logout
               </button>
             </>

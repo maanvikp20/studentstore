@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { usersAPI, ordersAPI } from '../utils/api';
 
-function Admin({ token }) {
+function Admin({ token, user }) {
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('users');
@@ -34,12 +34,17 @@ function Admin({ token }) {
     }
   };
 
-  const handleDeleteUser = async (id) => {
+  const handleDeleteUser = async (id, userEmail) => {
+    if (user && user.email === userEmail) {
+      alert('You cannot delete your own account!');
+      return;
+    }
+
     if (!window.confirm('Are you sure you want to delete this user?')) return;
 
     try {
       await usersAPI.delete(token, id);
-      setUsers(users.filter(user => user._id !== id));
+      setUsers(users.filter(u => u._id !== id));
       alert('User deleted successfully');
     } catch (err) {
       alert('Failed to delete user');
@@ -100,18 +105,22 @@ function Admin({ token }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {users.map((user) => (
-                        <tr key={user._id}>
-                          <td>{user.name}</td>
-                          <td>{user.email}</td>
-                          <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                      {users.map((u) => (
+                        <tr key={u._id}>
+                          <td>{u.name} {user && user.email === u.email && <span className="badge badge-admin">(You)</span>}</td>
+                          <td>{u.email}</td>
+                          <td>{new Date(u.createdAt).toLocaleDateString()}</td>
                           <td>
-                            <button 
-                              className="btn btn-danger btn-small"
-                              onClick={() => handleDeleteUser(user._id)}
-                            >
-                              <FaTrash />
-                            </button>
+                            {user && user.email === u.email ? (
+                              <span className="text-muted">Cannot delete yourself</span>
+                            ) : (
+                              <button 
+                                className="btn btn-danger btn-small"
+                                onClick={() => handleDeleteUser(u._id, u.email)}
+                              >
+                                <FaTrash />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}

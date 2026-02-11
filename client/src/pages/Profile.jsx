@@ -7,6 +7,7 @@ function Profile({ token, user }) {
   const [customOrders, setCustomOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('info');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (token) {
@@ -15,6 +16,9 @@ function Profile({ token, user }) {
   }, [token]);
 
   const fetchUserData = async () => {
+    setLoading(true);
+    setError('');
+    
     try {
       const [ordersResult, customOrdersResult] = await Promise.all([
         ordersAPI.getAll(token),
@@ -24,10 +28,29 @@ function Profile({ token, user }) {
       setOrders(ordersResult.data || []);
       setCustomOrders(customOrdersResult.data || []);
     } catch (err) {
-      console.error('Failed to load user data');
+      console.error('Failed to load user data:', err);
+      setError('Failed to load your data. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderOrderItem = (item, index) => {
+    if (typeof item === 'string') {
+      return <li key={index}>{item}</li>;
+    }
+    
+    if (typeof item === 'object' && item !== null) {
+      return (
+        <li key={index}>
+          {item.item || item.name || 'Unknown Item'}
+          {item.quantity && ` - Qty: ${item.quantity}`}
+          {item.price && ` - ${item.price}`}
+        </li>
+      );
+    }
+    
+    return <li key={index}>Invalid item</li>;
   };
 
   if (loading) {
@@ -38,6 +61,8 @@ function Profile({ token, user }) {
     <div className="profile-page">
       <div className="container">
         <h1>My Profile</h1>
+
+        {error && <div className="error-message">{error}</div>}
 
         <div className="profile-tabs">
           <button 
@@ -60,7 +85,6 @@ function Profile({ token, user }) {
           </button>
         </div>
 
-        {/* Profile Info Tab */}
         {activeTab === 'info' && (
           <div className="profile-info">
             <div className="profile-card">
@@ -99,7 +123,6 @@ function Profile({ token, user }) {
           </div>
         )}
 
-        {/* Orders Tab */}
         {activeTab === 'orders' && (
           <div className="profile-orders">
             <h2>Order History</h2>
@@ -126,9 +149,9 @@ function Profile({ token, user }) {
                       <div className="order-card-details">
                         <strong>Items:</strong>
                         <ul>
-                          {order.orderDetails.map((item, index) => (
-                            <li key={index}>{item}</li>
-                          ))}
+                          {Array.isArray(order.orderDetails) && 
+                            order.orderDetails.map((item, index) => renderOrderItem(item, index))
+                          }
                         </ul>
                       </div>
                     </div>
@@ -139,7 +162,6 @@ function Profile({ token, user }) {
           </div>
         )}
 
-        {/* Custom Orders Tab */}
         {activeTab === 'custom' && (
           <div className="profile-custom-orders">
             <h2>Custom Order Requests</h2>
@@ -168,9 +190,17 @@ function Profile({ token, user }) {
                       <div className="order-card-details">
                         <strong>Details:</strong>
                         <ul>
-                          {order.orderDetails.map((detail, index) => (
-                            <li key={index}>{detail}</li>
-                          ))}
+                          {Array.isArray(order.orderDetails) && 
+                            order.orderDetails.map((detail, index) => {
+                              if (typeof detail === 'string') {
+                                return <li key={index}>{detail}</li>;
+                              }
+                              if (typeof detail === 'object' && detail !== null) {
+                                return <li key={index}>{detail.description || JSON.stringify(detail)}</li>;
+                              }
+                              return null;
+                            })
+                          }
                         </ul>
                       </div>
                     </div>

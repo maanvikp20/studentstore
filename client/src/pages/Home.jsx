@@ -1,5 +1,4 @@
 import React from 'react';
-import EmblaCarousel from './components/Carousel';
 import { NavLink } from "react-router-dom";
 
 const Home = () => {
@@ -19,7 +18,7 @@ const Home = () => {
           <img src="https://placehold.co/400" alt="" />
         </div>
         <div className="links card">
-          <NavLink className="link" to="/store"> Visit Store </NavLink>
+          <NavLink className="link" to="/inventory"> Visit Store </NavLink>
           <NavLink className="link" to="/custom-orders"> Custom Orders </NavLink>
         </div>
       </div>

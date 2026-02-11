@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { FaTrash, FaPlus, FaTimes } from 'react-icons/fa';
-import { customOrdersAPI } from '../utils/api';
+import React, { useState, useEffect } from "react";
+import { FaTrash, FaPlus, FaTimes } from "react-icons/fa";
+import { customOrdersAPI } from "../utils/api";
 
 function CustomOrders({ token, user }) {
   const [customOrders, setCustomOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    customerName: user?.name || '',
-    customerEmail: user?.email || '',
-    orderDetails: '',
-    orderFileURL: ''
+    customerName: user?.name || "",
+    customerEmail: user?.email || "",
+    orderDetails: "",
+    orderFileURL: "",
   });
 
   useEffect(() => {
@@ -20,12 +20,22 @@ function CustomOrders({ token, user }) {
     }
   }, [token]);
 
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        customerName: user.name,
+        customerEmail: user.email,
+      }));
+    }
+  }, [user]);
+
   const fetchCustomOrders = async () => {
     try {
       const result = await customOrdersAPI.getAll(token);
       setCustomOrders(result.data || []);
     } catch (err) {
-      setError('Failed to load custom orders');
+      setError("Failed to load custom orders");
     } finally {
       setLoading(false);
     }
@@ -33,39 +43,46 @@ function CustomOrders({ token, user }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
-      const orderDetailsArray = formData.orderDetails.split(',').map(item => item.trim());
+      const orderDetailsArray = formData.orderDetails
+        .split("\n")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
+
       const result = await customOrdersAPI.create(token, {
-        ...formData,
-        orderDetails: orderDetailsArray
+        customerName: formData.customerName,
+        customerEmail: formData.customerEmail,
+        orderDetails: orderDetailsArray,
+        orderFileURL: formData.orderFileURL,
       });
-      
+
       if (result.data) {
         setCustomOrders([result.data, ...customOrders]);
         setShowForm(false);
         setFormData({
-          customerName: user?.name || '',
-          customerEmail: user?.email || '',
-          orderDetails: '',
-          orderFileURL: ''
+          customerName: user?.name || "",
+          customerEmail: user?.email || "",
+          orderDetails: "",
+          orderFileURL: "",
         });
-        alert('Custom order created successfully!');
+        alert("Custom order created successfully!");
       }
     } catch (err) {
-      alert('Failed to create custom order');
+      alert("Failed to create custom order");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this custom order?')) return;
+    if (!window.confirm("Are you sure you want to delete this custom order?"))
+      return;
 
     try {
       await customOrdersAPI.delete(token, id);
-      setCustomOrders(customOrders.filter(order => order._id !== id));
-      alert('Custom order deleted successfully');
+      setCustomOrders(customOrders.filter((order) => order._id !== id));
+      alert("Custom order deleted successfully");
     } catch (err) {
-      alert('Failed to delete custom order');
+      alert("Failed to delete custom order");
     }
   };
 
@@ -78,11 +95,19 @@ function CustomOrders({ token, user }) {
       <div className="container">
         <div className="page-header">
           <h1>Custom Orders</h1>
-          <button 
+          <button
             className="btn btn-primary"
             onClick={() => setShowForm(!showForm)}
           >
-            {showForm ? <><FaTimes /> Cancel</> : <><FaPlus /> Create Custom Order</>}
+            {showForm ? (
+              <>
+                <FaTimes /> Cancel
+              </>
+            ) : (
+              <>
+                <FaPlus /> Create Custom Order
+              </>
+            )}
           </button>
         </div>
 
@@ -97,7 +122,9 @@ function CustomOrders({ token, user }) {
                 <input
                   type="text"
                   value={formData.customerName}
-                  onChange={(e) => setFormData({...formData, customerName: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerName: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -107,17 +134,21 @@ function CustomOrders({ token, user }) {
                 <input
                   type="email"
                   value={formData.customerEmail}
-                  onChange={(e) => setFormData({...formData, customerEmail: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerEmail: e.target.value })
+                  }
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label>Order Details (comma-separated)</label>
+                <label>Order Details (one per line)</label>
                 <textarea
                   value={formData.orderDetails}
-                  onChange={(e) => setFormData({...formData, orderDetails: e.target.value})}
-                  placeholder="e.g., Custom phone case, Blue PLA, 10cm x 5cm"
+                  onChange={(e) =>
+                    setFormData({ ...formData, orderDetails: e.target.value })
+                  }
+                  placeholder="Custom phone case&#10;Blue PLA&#10;10cm x 5cm"
                   required
                   rows="4"
                 />
@@ -128,13 +159,17 @@ function CustomOrders({ token, user }) {
                 <input
                   type="url"
                   value={formData.orderFileURL}
-                  onChange={(e) => setFormData({...formData, orderFileURL: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, orderFileURL: e.target.value })
+                  }
                   placeholder="https://example.com/file.stl"
                   required
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary">Submit Order</button>
+              <button type="submit" className="btn btn-primary">
+                Submit Order
+              </button>
             </form>
           </div>
         )}
@@ -154,25 +189,48 @@ function CustomOrders({ token, user }) {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <button 
+                  <button
                     className="btn btn-danger btn-small"
                     onClick={() => handleDelete(order._id)}
                   >
                     <FaTrash /> Delete
                   </button>
                 </div>
-                
+
                 <div className="order-card-body">
-                  <p><strong>Customer:</strong> {order.customerName}</p>
-                  <p><strong>Email:</strong> {order.customerEmail}</p>
-                  <p><strong>File:</strong> <a href={order.orderFileURL} target="_blank" rel="noopener noreferrer">View File</a></p>
-                  
+                  <p>
+                    <strong>Customer:</strong> {order.customerName}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {order.customerEmail}
+                  </p>
+                  <p>
+                    <strong>File:</strong>{" "}
+                    <a
+                      href={order.orderFileURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View File
+                    </a>
+                  </p>
+
                   <div className="order-card-details">
                     <strong>Details:</strong>
                     <ul>
-                      {order.orderDetails.map((detail, index) => (
-                        <li key={index}>{detail}</li>
-                      ))}
+                      {Array.isArray(order.orderDetails) &&
+                        order.orderDetails.map((detail, index) => (
+                          <li key={index}>
+                            {typeof detail === "string" ? (
+                              detail
+                            ) : (
+                              <>
+                                <div>{detail.description}</div>
+                                <small>{detail.specifications}</small>
+                              </>
+                            )}
+                          </li>
+                        ))}
                     </ul>
                   </div>
                 </div>
