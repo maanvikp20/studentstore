@@ -46,10 +46,10 @@ function Inventory({ addToCart, user }) {
   return (
     <div className="inventory-page">
       <div className="container inventory-container">
+        
         <div className='section'>
           <h1>Shop Our Products</h1>
         </div>
-        
         {products.length === 0 ? (
           <p className="no-data">No products available at the moment.</p>
         ) : (

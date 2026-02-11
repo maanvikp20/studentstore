@@ -6,12 +6,13 @@
 @import './Inventory.scss';
 @import './components/Cart.scss';
 @import './components/Admin.scss';
+@import './components/Profile.scss';
 
 body{
   padding: 0;
   margin: 0;
   background-color: #0d330f;
-  color: white;
+  color: black;
 }
 main{
   height: fit-content;
@@ -48,4 +49,5 @@ main{
   margin: 2rem;
   padding: 1rem;
   box-shadow: 7.5px 7.5px 7.5px #2baa32;
+  width: max-content;
 }

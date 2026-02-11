@@ -59,26 +59,26 @@ function Profile({ token, user }) {
 
   return (
     <div className="profile-page">
-      <div className="container">
+      <div className="section">
         <h1>My Profile</h1>
 
         {error && <div className="error-message">{error}</div>}
 
-        <div className="profile-tabs">
+        <div className="profile-tabs profile-section">
           <button 
-            className={`profile-tab ${activeTab === 'info' ? 'active' : ''}`}
+            className={`btn profile-tab ${activeTab === 'info' ? 'active' : ''}`}
             onClick={() => setActiveTab('info')}
           >
             <FaUser /> Profile Info
           </button>
           <button 
-            className={`profile-tab ${activeTab === 'orders' ? 'active' : ''}`}
+            className={`btn profile-tab ${activeTab === 'orders' ? 'active' : ''} `}
             onClick={() => setActiveTab('orders')}
           >
             <FaShoppingBag /> My Orders ({orders.length})
           </button>
           <button 
-            className={`profile-tab ${activeTab === 'custom' ? 'active' : ''}`}
+            className={`btn profile-tab ${activeTab === 'custom' ? 'active' : ''} `}
             onClick={() => setActiveTab('custom')}
           >
             <FaBox /> Custom Orders ({customOrders.length})
@@ -88,19 +88,19 @@ function Profile({ token, user }) {
         {activeTab === 'info' && (
           <div className="profile-info">
             <div className="profile-card">
-              <div className="profile-avatar">
+              <div className="profile-avatar profile-section">
                 <FaUser />
               </div>
               <div className="profile-details">
-                <div className="profile-field">
+                <div className="profile-field profile-section">
                   <label>Name</label>
                   <p>{user.name}</p>
                 </div>
-                <div className="profile-field">
+                <div className="profile-field profile-section">
                   <label>Email</label>
                   <p>{user.email}</p>
                 </div>
-                <div className="profile-field">
+                <div className="profile-field profile-section">
                   <label>Account Type</label>
                   <p className="profile-role">
                     <span className={`badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
@@ -108,7 +108,7 @@ function Profile({ token, user }) {
                     </span>
                   </p>
                 </div>
-                <div className="profile-stats">
+                <div className="profile-stats profile-section">
                   <div className="stat-box">
                     <div className="stat-number">{orders.length}</div>
                     <div className="stat-label">Total Orders</div>
