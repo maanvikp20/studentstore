@@ -32,8 +32,8 @@ app.use(express.urlencoded({ extended: true })) // Parse URL-encoded bodies
 app.use(morgan("':method :url :status :res[content-length] - :response-time ms'"))
 
 // 4. Connect to database
-console.log(process.env.MONGO_URI)
-connectDB(process.env.MONGO_URI);
+console.log(process.env.MONGODB_URI_JOSE)
+connectDB(process.env.MONGODB_URI_JOSE);
 
 // 5. Health Check
 app.get('/api/health', (req, res) => res.json({ok: true}));

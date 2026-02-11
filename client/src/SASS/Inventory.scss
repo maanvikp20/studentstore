@@ -1,13 +1,33 @@
+.inventory-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+
+    .section{
+    
+    h1{
+        color: #ae77f8;
+        background-color: none;
+        padding: 10px;
+        border-radius: .5rem;
+    }
+    }
+
 .product-grid{
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    color: #ae77f8;
 }
 
 .img{
     border-radius: .5rem;
+    width: 22rem;
+    height: 22rem;
 }
 
 .product-card-content{
@@ -22,4 +42,5 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
 }

@@ -1,18 +1,32 @@
-.profile-section{
-    border: 4px solid black;
-    padding: .5rem;
-    margin: 2rem;
-}
-
 .profile-page{
     display: flex;
     justify-content: center;
     align-items: center;
-}
+    color: #865bbd;
 
-.profile-tabs{
-    display: flex;
-    button{
-        margin: 1rem;
+        .profile-section{
+        border: 4px solid black;
+        border-radius: .5rem;
+        padding: .5rem;
+        margin: 2rem;
+    }
+    .profile-tabs{
+        display: flex;
+        button{
+            margin: 1rem;
+        }
+    }
+
+    .profile-tab{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .btn{
+            width: 6rem;
+            font-size: 1.2rem;
+        }
     }
 }
+

@@ -57,7 +57,7 @@ function Inventory({ addToCart, user }) {
             {products.map((product) => (
               <div key={product._id} className="product-card section">
                 <div className="product-card-image">
-                  <img className  src={product.imageURL} alt={product.itemName} />
+                  <img className="img"  src={product.imageURL} alt={product.itemName} />
                 </div>
                 <div className="product-card-content">
                   <h3>{product.itemName}</h3>

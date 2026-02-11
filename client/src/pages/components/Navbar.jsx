@@ -29,7 +29,7 @@ export default function Navbar({ user, onLogout, cartCount = 0 }) {
             >
               Inventory
             </NavLink>
-            {isLoggedIn && (
+            {isLoggedIn && !isAdmin && (
               <NavLink
                 className={({ isActive }) => "link" + (isActive ? " active" : "")}
                 to="/custom-orders"
@@ -46,15 +46,6 @@ export default function Navbar({ user, onLogout, cartCount = 0 }) {
         </div>
 
         <div className="personal-menu">
-          {isLoggedIn && (
-            <NavLink
-              className={({ isActive }) => "link" + (isActive ? " active" : "")}
-              to="/cart"
-            >
-              Cart {cartCount > 0 && `(${cartCount})`}
-            </NavLink>
-          )}
-        
           {!isLoggedIn ? (
             <NavLink
               className={({ isActive }) => "link" + (isActive ? " active" : "")}
@@ -62,23 +53,33 @@ export default function Navbar({ user, onLogout, cartCount = 0 }) {
             >
               Login
             </NavLink>
+          ) : isAdmin ? (
+            <>
+              <NavLink
+                className={({ isActive }) => "link" + (isActive ? " active" : "")}
+                to="/admin"
+              >
+                Admin Panel
+              </NavLink>
+              <button className="link" onClick={logout}>
+                Logout
+              </button>
+            </>
           ) : (
             <>
+              <NavLink
+                className={({ isActive }) => "link" + (isActive ? " active" : "")}
+                to="/cart"
+              >
+                Cart {cartCount > 0 && `(${cartCount})`}
+              </NavLink>
+
               <NavLink
                 className={({ isActive }) => "link" + (isActive ? " active" : "")}
                 to="/profile"
               >
                 Profile
               </NavLink>
-              
-              {isAdmin && (
-                <NavLink
-                  className={({ isActive }) => "link" + (isActive ? " active" : "")}
-                  to="/admin"
-                >
-                  Admin Panel
-                </NavLink>
-              )}
 
               <button className="link" onClick={logout}>
                 Logout

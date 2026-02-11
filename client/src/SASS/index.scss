@@ -11,7 +11,7 @@
 body{
   padding: 0;
   margin: 0;
-  background-color: #0d330f;
+  background-color: #2e223c;
   color: black;
 }
 main{
@@ -19,14 +19,14 @@ main{
 }
 
 .auth-card{
-  background-color: #0d330f;
+  background-color: #1e1e24;
 }
 
 .btn{
     display: flex;
     gap: 10px;
-    background-color: #2baa32;
-    color: white;
+    background-color: #2a2a38;
+    color: #865bbd;
     border: none;
     padding: 0.5rem 0.6rem;
     cursor: pointer;
@@ -40,7 +40,7 @@ main{
 }
 
 .section{
-  background-color: #41ff4b;
+  background-color: #393946;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -48,6 +48,6 @@ main{
   border-radius: 2rem;
   margin: 2rem;
   padding: 1rem;
-  box-shadow: 7.5px 7.5px 7.5px #2baa32;
+  box-shadow: 7.5px 7.5px 7.5px #1f1f28;
   width: max-content;
 }

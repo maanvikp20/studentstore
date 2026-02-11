@@ -15,7 +15,7 @@ const Home = () => {
       </div>  
       <div className="section page-links">
         <div className="imageCard card">
-          <img src="https://placehold.co/400" alt="" />
+          <img src="https://res.cloudinary.com/dnhjp6xda/image/upload/v1770846193/ball_owqo3y.jpg" alt="" />
         </div>
         <div className="links card">
           <NavLink className="link" to="/inventory"> Visit Store </NavLink>

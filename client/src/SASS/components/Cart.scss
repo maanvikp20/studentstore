@@ -9,7 +9,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: #2baa32;
+        background-color: #393946;
         padding: 2rem;
         border-radius: 1rem;
         width: 50%;
@@ -17,11 +17,11 @@
 
     .btn{
         text-decoration: none;
-        background-color: #15a31f;
+        background-color: #2a2a38;
         color: black;
         border: none;
         padding: 0.5rem 1rem;
-        border: solid 3px #0a7010;
+        border: solid 3px #1f1f28;
         border-radius: 0.5rem;
         cursor: pointer;
         font-size: 1rem;
@@ -29,7 +29,7 @@
         width: 7.8rem;
 
         &:hover{
-            background-color: rgb(55, 215, 68);
+            background-color: #583c7c;
         }
     }
 }
