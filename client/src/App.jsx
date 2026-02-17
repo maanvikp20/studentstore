@@ -16,6 +16,7 @@ import CustomOrders from "./pages/CustomOrders";
 import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import ItemDetail from "./pages/components/ItemDetail";
 import "./SASS/index.scss";
 
 function App() {
@@ -121,6 +122,11 @@ function App() {
         <Route
           path="/inventory"
           element={<Inventory addToCart={addToCart} user={user} />}
+        />
+
+        <Route
+          path="/item/:id"
+          element={<ItemDetail addToCart={addToCart} user={user} />}
         />
         <Route
           path="/profile"

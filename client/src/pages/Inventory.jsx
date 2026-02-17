@@ -24,15 +24,19 @@ function Inventory({ addToCart, user }) {
     }
   };
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
     if (!user) {
       alert("Please login to add items to cart");
       navigate("/login");
       return;
     }
-
     addToCart(product);
     alert(`${product.itemName} added to cart!`);
+  };
+
+  const viewDetail = (product) => {
+    navigate(`/item/${product._id}`, { state: { product } });
   };
 
   if (loading) {
@@ -46,8 +50,7 @@ function Inventory({ addToCart, user }) {
   return (
     <div className="inventory-page">
       <div className="container inventory-container">
-        
-        <div className='section'>
+        <div className="section">
           <h1>Shop Our Products</h1>
         </div>
         {products.length === 0 ? (
@@ -55,9 +58,14 @@ function Inventory({ addToCart, user }) {
         ) : (
           <div className="product-grid">
             {products.map((product) => (
-              <div key={product._id} className="product-card section">
+              <div
+                key={product._id}
+                className="product-card section"
+                onClick={() => viewDetail(product)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="product-card-image">
-                  <img className="img"  src={product.imageURL} alt={product.itemName} />
+                  <img className="img" src={product.imageURL} alt={product.itemName} />
                 </div>
                 <div className="product-card-content">
                   <h3>{product.itemName}</h3>
@@ -66,16 +74,20 @@ function Inventory({ addToCart, user }) {
                   </p>
                   <p className="product-card-stock">
                     {product.amountInStock > 0 ? (
-                      <span className="in-stock"><FaCheck /> In Stock ({product.amountInStock})</span>
+                      <span className="in-stock">
+                        <FaCheck /> In Stock ({product.amountInStock})
+                      </span>
                     ) : (
-                      <span className="out-of-stock"><FaTimes /> Out of Stock</span>
+                      <span className="out-of-stock">
+                        <FaTimes /> Out of Stock
+                      </span>
                     )}
                   </p>
                   <div className="product-card-footer">
                     <span className="product-card-price">${product.itemPrice}</span>
-                    <button 
+                    <button
                       className="btn btn-primary btn-small"
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => handleAddToCart(e, product)}
                       disabled={product.amountInStock === 0}
                     >
                       Add to Cart
