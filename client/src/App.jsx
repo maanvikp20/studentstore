@@ -17,7 +17,7 @@ import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ItemDetail from "./pages/components/ItemDetail";
-import "./SASS/index.scss";
+import "./SASS/App.scss";
 
 function App() {
   const [user, setUser] = useState(null);

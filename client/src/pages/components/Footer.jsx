@@ -6,20 +6,21 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-columns">
+
           <div className="footer-column">
-            <h3 className="footer-title">3D Print Store</h3>
+            <h3 className="footer-title">3D Print <span>Store</span></h3>
             <p className="footer-description">
-              Your one-stop shop for high-quality 3D printed products and custom printing services.
+              Your one-stop shop for high-quality 3D printed products and fully custom printing services — designed, printed, and delivered.
             </p>
             <div className="footer-social">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                <FaInstagram size={20} />
+                <FaInstagram size={17} />
               </a>
               <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                <FaTwitter size={20} />
+                <FaTwitter size={17} />
               </a>
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                <FaFacebook size={20} />
+                <FaFacebook size={17} />
               </a>
             </div>
           </div>
@@ -56,12 +57,12 @@ export default function Footer() {
             <h4 className="footer-column-title">Business Hours</h4>
             <ul className="footer-hours">
               <li>
-                <span>Monday - Friday</span>
-                <span>8:00 AM - 5:00 PM</span>
+                <span>Mon – Fri</span>
+                <span>8:00 AM – 5:00 PM</span>
               </li>
               <li>
                 <span>Saturday</span>
-                <span>10:00 AM - 3:00 PM</span>
+                <span>10:00 AM – 3:00 PM</span>
               </li>
               <li>
                 <span>Sunday</span>
@@ -69,11 +70,13 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+
         </div>
 
         <div className="footer-bottom">
           <p className="footer-text">
-            &copy; {new Date().getFullYear()} 3D Print Store. All rights reserved. Designed by West-MEC North East Campus.
+            &copy; {new Date().getFullYear()} 3D Print Store. All rights reserved.
+            Designed by West-MEC North East Campus.
           </p>
         </div>
       </div>
