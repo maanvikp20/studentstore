@@ -1,323 +1,228 @@
-// TEST DATA FOR STUDENT STORE
-// Based on your MongoDB models
-// Run this script with: node seed-data.js
-
 require('dotenv').config();
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt   = require('bcrypt');
 
-// Import models
-const User = require('./src/models/User');
-const Inventory = require('./src/models/Inventory');
-const Order = require('./src/models/Orders');
+const User        = require('./src/models/User');
+const Inventory   = require('./src/models/Inventory');
+const Order       = require('./src/models/Orders');
 const CustomOrder = require('./src/models/CustomOrders');
 const Testimonial = require('./src/models/Testimonials');
 
-// ============================================
-// TEST DATA
-// ============================================
-
-// 1. USERS (5 users)
+// ── Users ────────────────────────────────────────────────────────
 const users = [
-  {
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    password: "password123",
-    role: "admin"
-  },
-  {
-    name: "Bob Smith",
-    email: "bob@example.com",
-    password: "password123",
-    role: "user"
-  },
-  {
-    name: "Charlie Brown",
-    email: "charlie@example.com",
-    password: "password123",
-    role: "user"
-  },
-  {
-    name: "Diana Martinez",
-    email: "diana@example.com",
-    password: "password123",
-    role: "user"
-  },
-  {
-    name: "Ethan Davis",
-    email: "ethan@example.com",
-    password: "password123",
-    role: "user"
-  }
+  { name: "Alice Johnson",  email: "alice@example.com",   password: "password123", role: "admin" },
+  { name: "Bob Smith",      email: "bob@example.com",      password: "password123", role: "user"  },
+  { name: "Charlie Brown",  email: "charlie@example.com",  password: "password123", role: "user"  },
+  { name: "Diana Martinez", email: "diana@example.com",    password: "password123", role: "user"  },
+  { name: "Ethan Davis",    email: "ethan@example.com",    password: "password123", role: "user"  },
 ];
 
-// 2. INVENTORY (5 items)
+// ── Inventory ────────────────────────────────────────────────────
 const inventoryItems = [
-  {
-    itemName: "Custom Phone Case",
-    itemPrice: "15.99",
-    amountInStock: 50,
-    filament: "PLA",
-    imageURL: "https://picsum.photos/400/400?random=1"
-  },
-  {
-    itemName: "Desk Organizer",
-    itemPrice: "22.50",
-    amountInStock: 30,
-    filament: "PETG",
-    imageURL: "https://picsum.photos/400/400?random=2"
-  },
-  {
-    itemName: "Phone Stand",
-    itemPrice: "12.99",
-    amountInStock: 75,
-    filament: "PLA",
-    imageURL: "https://picsum.photos/400/400?random=3"
-  },
-  {
-    itemName: "Cable Management Clip",
-    itemPrice: "8.99",
-    amountInStock: 100,
-    filament: "ABS",
-    imageURL: "https://picsum.photos/400/400?random=4"
-  },
-  {
-    itemName: "Keycap Set",
-    itemPrice: "35.00",
-    amountInStock: 20,
-    filament: "PETG",
-    imageURL: "https://picsum.photos/400/400?random=5"
-  }
+  { itemName: "Custom Phone Case",       itemPrice: "15.99", amountInStock: 50,  filament: "PLA",  imageURL: "https://picsum.photos/400/400?random=1", description: "Slim-fit phone case printed in matte PLA. Available for most models." },
+  { itemName: "Desk Organizer",          itemPrice: "22.50", amountInStock: 30,  filament: "PETG", imageURL: "https://picsum.photos/400/400?random=2", description: "Six-compartment desk organizer, durable PETG construction." },
+  { itemName: "Phone Stand",             itemPrice: "12.99", amountInStock: 75,  filament: "PLA",  imageURL: "https://picsum.photos/400/400?random=3", description: "Adjustable phone stand, compatible with all smartphones." },
+  { itemName: "Cable Management Clip",   itemPrice: "8.99",  amountInStock: 100, filament: "ABS",  imageURL: "https://picsum.photos/400/400?random=4", description: "Keep your cables tidy. Pack of 10 clips." },
+  { itemName: "Keycap Set",              itemPrice: "35.00", amountInStock: 20,  filament: "PETG", imageURL: "https://picsum.photos/400/400?random=5", description: "Custom PETG keycap set, vibrant colors, standard layout." },
+  { itemName: "Raspberry Pi Case",       itemPrice: "18.00", amountInStock: 3,   filament: "PLA",  imageURL: "https://picsum.photos/400/400?random=6", description: "Vented case for Raspberry Pi 4, fits official cooling fan." },
+  { itemName: "Earphone Holder",         itemPrice: "9.50",  amountInStock: 0,   filament: "TPU",  imageURL: "https://picsum.photos/400/400?random=7", description: "Flexible TPU earphone holder, attaches to desk edge." },
 ];
 
-// 3. ORDERS (Will be created after users - 5 orders)
-const getOrdersData = (userIds) => [
+// ── Orders ───────────────────────────────────────────────────────
+const getOrdersData = (ids) => [
   {
-    customer: userIds[0],
-    customerName: "Alice Johnson",
-    customerEmail: "alice@example.com",
-    orderDetails: [
-      { item: "Custom Phone Case", quantity: 2, price: "15.99" },
-      { item: "Phone Stand", quantity: 1, price: "12.99" }
-    ]
+    customer: ids[0], customerName: "Alice Johnson", customerEmail: "alice@example.com",
+    status: "Completed",
+    orderDetails: ["Custom Phone Case x2 @ $15.99", "Phone Stand x1 @ $12.99"],
   },
   {
-    customer: userIds[1],
-    customerName: "Bob Smith",
-    customerEmail: "bob@example.com",
-    orderDetails: [
-      { item: "Desk Organizer", quantity: 1, price: "22.50" }
-    ]
+    customer: ids[1], customerName: "Bob Smith", customerEmail: "bob@example.com",
+    status: "Processing",
+    orderDetails: ["Desk Organizer x1 @ $22.50"],
   },
   {
-    customer: userIds[2],
-    customerName: "Charlie Brown",
-    customerEmail: "charlie@example.com",
-    orderDetails: [
-      { item: "Cable Management Clip", quantity: 5, price: "8.99" },
-      { item: "Phone Stand", quantity: 2, price: "12.99" }
-    ]
+    customer: ids[2], customerName: "Charlie Brown", customerEmail: "charlie@example.com",
+    status: "Pending",
+    orderDetails: ["Cable Management Clip x5 @ $8.99", "Phone Stand x2 @ $12.99"],
   },
   {
-    customer: userIds[3],
-    customerName: "Diana Martinez",
-    customerEmail: "diana@example.com",
-    orderDetails: [
-      { item: "Keycap Set", quantity: 1, price: "35.00" }
-    ]
+    customer: ids[3], customerName: "Diana Martinez", customerEmail: "diana@example.com",
+    status: "Completed",
+    orderDetails: ["Keycap Set x1 @ $35.00"],
   },
   {
-    customer: userIds[0],
-    customerName: "Alice Johnson",
-    customerEmail: "alice@example.com",
-    orderDetails: [
-      { item: "Desk Organizer", quantity: 2, price: "22.50" },
-      { item: "Custom Phone Case", quantity: 1, price: "15.99" }
-    ]
-  }
+    customer: ids[0], customerName: "Alice Johnson", customerEmail: "alice@example.com",
+    status: "Cancelled",
+    orderDetails: ["Desk Organizer x2 @ $22.50", "Custom Phone Case x1 @ $15.99"],
+  },
 ];
 
-// 4. CUSTOM ORDERS (Will be created after users - 5 custom orders)
-const getCustomOrdersData = (userIds) => [
+// ── Custom Orders ─────────────────────────────────────────────────
+const getCustomOrdersData = (ids) => [
   {
-    customer: userIds[0],
-    customerName: "Alice Johnson",
-    customerEmail: "alice@example.com",
-    orderDetails: [
-      { description: "Custom laptop stand with university logo", specifications: "15 inch width, ergonomic angle" }
-    ],
-    orderFileURL: "https://example.com/files/custom-laptop-stand.stl"
+    customer: ids[0], customerName: "Alice Johnson", customerEmail: "alice@example.com",
+    orderDetails: ["Custom laptop stand with university logo", "15 inch width, ergonomic angle"],
+    orderFileURL: "https://example.com/files/custom-laptop-stand.stl",
+    fileName: "custom-laptop-stand.stl", fileType: "stl",
+    material: "PLA", color: "White", quantity: 1,
+    sliceStatus: "done",
+    gcodeURL: "https://example.com/gcode/custom-laptop-stand.gcode",
+    gcodeStats: { printTimeMins: 145, filamentUsedG: 38.4, filamentUsedMm: 12820, layerCount: 580 },
+    estimatedCost: {
+      low: 14.20, high: 21.10, currency: "USD",
+      breakdown: { materialCost: 0.96, laborCost: 5.50, complexityCost: 5.00, quantityTotal: 1, discountPct: 0, estimatedGrams: 38.4, complexityTier: "Moderate" },
+      disclaimer: "Based on actual slicer data: 38.4g of PLA. Estimated print time: 2h 25m. Final price confirmed by admin.",
+    },
+    confirmedPrice: 18.00,
+    status: "Quoted",
+    notes: "Please use matte finish if possible.",
   },
   {
-    customer: userIds[1],
-    customerName: "Bob Smith",
-    customerEmail: "bob@example.com",
-    orderDetails: [
-      { description: "Personalized nameplate", specifications: "10cm x 3cm, cursive font" }
-    ],
-    orderFileURL: "https://example.com/files/nameplate-bob.stl"
+    customer: ids[1], customerName: "Bob Smith", customerEmail: "bob@example.com",
+    orderDetails: ["Personalized nameplate", "10cm x 3cm, cursive font"],
+    orderFileURL: "https://example.com/files/nameplate-bob.stl",
+    fileName: "nameplate-bob.stl", fileType: "stl",
+    material: "PETG", color: "Galaxy Black", quantity: 2,
+    sliceStatus: "done",
+    gcodeURL: "https://example.com/gcode/nameplate-bob.gcode",
+    gcodeStats: { printTimeMins: 42, filamentUsedG: 8.1, filamentUsedMm: 2700, layerCount: 168 },
+    estimatedCost: {
+      low: 10.50, high: 15.60, currency: "USD",
+      breakdown: { materialCost: 0.49, laborCost: 6.50, complexityCost: 2.00, quantityTotal: 2, discountPct: 0, estimatedGrams: 8.1, complexityTier: "Simple" },
+      disclaimer: "Based on actual slicer data: 8.1g of PETG per unit. Final price confirmed by admin.",
+    },
+    status: "In Progress",
+    notes: "",
   },
   {
-    customer: userIds[2],
-    customerName: "Charlie Brown",
-    customerEmail: "charlie@example.com",
-    orderDetails: [
-      { description: "Custom game controller holder", specifications: "Fits PS5 controller, wall-mounted" }
-    ],
-    orderFileURL: "https://example.com/files/controller-holder.stl"
+    customer: ids[2], customerName: "Charlie Brown", customerEmail: "charlie@example.com",
+    orderDetails: ["Custom game controller holder", "Fits PS5 controller, wall-mounted"],
+    orderFileURL: "https://example.com/files/controller-holder.stl",
+    fileName: "controller-holder.stl", fileType: "stl",
+    material: "ABS", color: "Matte Gray", quantity: 1,
+    sliceStatus: "error",
+    estimatedCost: {
+      low: 12.80, high: 19.10, currency: "USD",
+      breakdown: { materialCost: 1.12, laborCost: 5.50, complexityCost: 5.00, quantityTotal: 1, discountPct: 0, estimatedGrams: 40.0, complexityTier: "Moderate" },
+      disclaimer: "Estimate based on file size (~1.8MB, Moderate geometry). Slicer error — admin will process manually. Final price confirmed by admin.",
+    },
+    status: "Reviewing",
+    notes: "Slicer failed — might need mesh repair.",
   },
   {
-    customer: userIds[3],
-    customerName: "Diana Martinez",
-    customerEmail: "diana@example.com",
-    orderDetails: [
-      { description: "Customized pencil holder with initials DM", specifications: "5 compartments, rounded edges" }
-    ],
-    orderFileURL: "https://example.com/files/pencil-holder-dm.stl"
+    customer: ids[3], customerName: "Diana Martinez", customerEmail: "diana@example.com",
+    orderDetails: ["Customized pencil holder with initials DM", "5 compartments, rounded edges"],
+    orderFileURL: "https://example.com/files/pencil-holder-dm.stl",
+    fileName: "pencil-holder-dm.stl", fileType: "stl",
+    material: "PLA", color: "Lavender", quantity: 3,
+    sliceStatus: "pending",
+    estimatedCost: {
+      low: 19.40, high: 28.80, currency: "USD",
+      breakdown: { materialCost: 1.88, laborCost: 8.50, complexityCost: 5.00, quantityTotal: 3, discountPct: 0, estimatedGrams: 25.0, complexityTier: "Moderate" },
+      disclaimer: "Estimate based on file size. Awaiting slicing. Final price confirmed by admin.",
+    },
+    status: "Pending",
+    notes: "Wants all 3 in the same color.",
   },
   {
-    customer: userIds[4],
-    customerName: "Ethan Davis",
-    customerEmail: "ethan@example.com",
-    orderDetails: [
-      { description: "Mini figurine of college mascot", specifications: "8cm tall, detailed features" }
-    ],
-    orderFileURL: "https://example.com/files/mascot-figurine.stl"
-  }
+    customer: ids[4], customerName: "Ethan Davis", customerEmail: "ethan@example.com",
+    orderDetails: ["Mini figurine of college mascot", "8cm tall, detailed features"],
+    orderFileURL: "https://example.com/files/mascot-figurine.obj",
+    fileName: "mascot-figurine.obj", fileType: "obj",
+    material: "RESIN", color: "Clear", quantity: 1,
+    sliceStatus: "unsupported",
+    estimatedCost: {
+      low: 16.40, high: 24.40, currency: "USD",
+      breakdown: { materialCost: 4.00, laborCost: 5.50, complexityCost: 5.00, quantityTotal: 1, discountPct: 0, estimatedGrams: 50.0, complexityTier: "Moderate" },
+      disclaimer: "OBJ file — manual slicing required. Estimate based on file size. Final price confirmed by admin.",
+    },
+    status: "Pending",
+    notes: "Wants ultra-fine detail, 0.05mm layer height if possible.",
+  },
 ];
 
-// 5. TESTIMONIALS (Will be created after users - 5 testimonials)
-const getTestimonialsData = (userIds) => [
-  {
-    writer: userIds[0],
-    writerName: "Alice Johnson",
-    writerEmail: "alice@example.com",
-    testimonialWritten: "Amazing quality! The custom phone case fits perfectly and the print quality is outstanding. Highly recommend!"
-  },
-  {
-    writer: userIds[1],
-    writerName: "Bob Smith",
-    writerEmail: "bob@example.com",
-    testimonialWritten: "Great customer service and fast delivery. The desk organizer has really helped me stay productive."
-  },
-  {
-    writer: userIds[2],
-    writerName: "Charlie Brown",
-    writerEmail: "charlie@example.com",
-    testimonialWritten: "The cable clips are exactly what I needed. Clean design and very functional. Will order more!"
-  },
-  {
-    writer: userIds[3],
-    writerName: "Diana Martinez",
-    writerEmail: "diana@example.com",
-    testimonialWritten: "Love the keycap set! Colors are vibrant and they feel very durable. Worth every penny."
-  },
-  {
-    writer: userIds[4],
-    writerName: "Ethan Davis",
-    writerEmail: "ethan@example.com",
-    testimonialWritten: "The custom order service is fantastic! They brought my design to life perfectly. Five stars!"
-  }
+// ── Testimonials ──────────────────────────────────────────────────
+const getTestimonialsData = (ids) => [
+  { writer: ids[0], writerName: "Alice Johnson",  writerEmail: "alice@example.com",   testimonialWritten: "Amazing quality! The custom phone case fits perfectly and the print quality is outstanding. Highly recommend!" },
+  { writer: ids[1], writerName: "Bob Smith",      writerEmail: "bob@example.com",      testimonialWritten: "Great customer service and fast delivery. The desk organizer has really helped me stay productive." },
+  { writer: ids[2], writerName: "Charlie Brown",  writerEmail: "charlie@example.com",  testimonialWritten: "The cable clips are exactly what I needed. Clean design and very functional. Will order more!" },
+  { writer: ids[3], writerName: "Diana Martinez", writerEmail: "diana@example.com",    testimonialWritten: "Love the keycap set! Colors are vibrant and they feel very durable. Worth every penny." },
+  { writer: ids[4], writerName: "Ethan Davis",    writerEmail: "ethan@example.com",    testimonialWritten: "The custom order service is fantastic! They brought my design to life perfectly. Five stars!" },
 ];
 
-// ============================================
-// SEEDING FUNCTION
-// ============================================
-
+// ── Seed ──────────────────────────────────────────────────────────
 async function seedDatabase() {
   try {
-    // Connect to MongoDB
     console.log('Connecting to MongoDB...');
     await mongoose.connect(process.env.MONGODB_URI_JOSE);
     console.log('MongoDB Connected\n');
 
-    // Clear existing data
     console.log('Clearing existing data...');
-    await User.deleteMany({});
-    await Inventory.deleteMany({});
-    await Order.deleteMany({});
-    await CustomOrder.deleteMany({});
-    await Testimonial.deleteMany({});
-    console.log('Existing data cleared\n');
+    await Promise.all([
+      User.deleteMany({}),
+      Inventory.deleteMany({}),
+      Order.deleteMany({}),
+      CustomOrder.deleteMany({}),
+      Testimonial.deleteMany({}),
+    ]);
+    console.log('Cleared\n');
 
-    // 1. Create Users
+    // Users
     console.log('Creating users...');
     const createdUsers = [];
-    for (const userData of users) {
-      const passwordHash = await bcrypt.hash(userData.password, 12);
-      const user = await User.create({
-        name: userData.name,
-        email: userData.email,
-        passwordHash,
-        role: userData.role || "user"
-      });
-      createdUsers.push(user);
-      console.log(`   ✓ Created user: ${user.name}`);
+    for (const u of users) {
+      const passwordHash = await bcrypt.hash(u.password, 12);
+      const created = await User.create({ name: u.name, email: u.email, passwordHash, role: u.role });
+      createdUsers.push(created);
+      console.log(`   ✓ ${created.name} (${created.role})`);
     }
-    const userIds = createdUsers.map(u => u._id);
-    console.log(`✅ ${createdUsers.length} users created\n`);
+    const ids = createdUsers.map(u => u._id);
+    console.log(`${createdUsers.length} users\n`);
 
-    // 2. Create Inventory Items
-    console.log('Creating inventory items...');
-    const createdInventory = await Inventory.insertMany(inventoryItems);
-    createdInventory.forEach(item => {
-      console.log(`   ✓ Created item: ${item.itemName}`);
-    });
-    console.log(`Created ${createdInventory.length} inventory items\n`);
+    // Inventory
+    console.log('Creating inventory...');
+    const createdInv = await Inventory.insertMany(inventoryItems);
+    createdInv.forEach(i => console.log(`   ✓ ${i.itemName} — $${i.itemPrice} (${i.amountInStock} in stock)`));
+    console.log(`${createdInv.length} items\n`);
 
-    // 3. Create Orders
+    // Orders
     console.log('Creating orders...');
-    const ordersData = getOrdersData(userIds);
-    const createdOrders = await Order.insertMany(ordersData);
-    createdOrders.forEach(order => {
-      console.log(`   ✓ Created order for: ${order.customerName}`);
-    });
-    console.log(`Created ${createdOrders.length} orders\n`);
+    const createdOrders = await Order.insertMany(getOrdersData(ids));
+    createdOrders.forEach(o => console.log(`   ✓ ${o.customerName} — ${o.status}`));
+    console.log(`${createdOrders.length} orders\n`);
 
-    // 4. Create Custom Orders
+    // Custom Orders
     console.log('Creating custom orders...');
-    const customOrdersData = getCustomOrdersData(userIds);
-    const createdCustomOrders = await CustomOrder.insertMany(customOrdersData);
-    createdCustomOrders.forEach(order => {
-      console.log(`✓ Created custom order for: ${order.customerName}`);
-    });
-    console.log(`Created ${createdCustomOrders.length} custom orders\n`);
+    const createdCustom = await CustomOrder.insertMany(getCustomOrdersData(ids));
+    createdCustom.forEach(o => console.log(`   ✓ ${o.customerName} — ${o.material} / ${o.sliceStatus}`));
+    console.log(`${createdCustom.length} custom orders\n`);
 
-    // 5. Create Testimonials
+    // Testimonials
     console.log('Creating testimonials...');
-    const testimonialsData = getTestimonialsData(userIds);
-    const createdTestimonials = await Testimonial.insertMany(testimonialsData);
-    createdTestimonials.forEach(testimonial => {
-      console.log(`✓ Created testimonial by: ${testimonial.writerName}`);
-    });
-    console.log(`Created ${createdTestimonials.length} testimonials\n`);
+    const createdTest = await Testimonial.insertMany(getTestimonialsData(ids));
+    createdTest.forEach(t => console.log(`   ✓ ${t.writerName}`));
+    console.log(`${createdTest.length} testimonials\n`);
 
-    // Summary
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('DATABASE SEEDED SUCCESSFULLY!');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`✓ Users: ${createdUsers.length}`);
-    console.log(`✓ Inventory Items: ${createdInventory.length}`);
-    console.log(`✓ Orders: ${createdOrders.length}`);
-    console.log(`✓ Custom Orders: ${createdCustomOrders.length}`);
-    console.log(`✓ Testimonials: ${createdTestimonials.length}`);
+    console.log(`  Users:         ${createdUsers.length}`);
+    console.log(`  Inventory:     ${createdInv.length}  (1 out of stock, 2 low stock)`);
+    console.log(`  Orders:        ${createdOrders.length}  (mixed statuses)`);
+    console.log(`  Custom Orders: ${createdCustom.length}  (all slice statuses represented)`);
+    console.log(`  Testimonials:  ${createdTest.length}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    console.log('TEST LOGIN:');
+    console.log('  Admin → alice@example.com / password123');
+    console.log('  User  → bob@example.com   / password123\n');
 
-    console.log('TEST LOGIN CREDENTIALS:');
-    console.log('   Email: alice@example.com');
-    console.log('   Password: password123');
-    console.log('   (All users have the same password)\n');
-
-    // Disconnect
     await mongoose.disconnect();
-    console.log('Disconnected from MongoDB');
+    console.log('Disconnected.');
     process.exit(0);
-
-  } catch (error) {
-    console.error('Error seeding database:', error);
+  } catch (err) {
+    console.error('Seed error:', err);
     process.exit(1);
   }
 }
 
-// Run the seeding function
 seedDatabase();

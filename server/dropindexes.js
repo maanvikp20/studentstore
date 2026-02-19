@@ -1,70 +1,59 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-async function dropUniqueIndexes() {
+async function dropIndex(db, collection, index) {
+  try {
+    await db.collection(collection).dropIndex(index);
+    console.log(`   ✓ Dropped "${index}" from ${collection}`);
+  } catch (err) {
+    if (err.code === 27) {
+      console.log(`   – "${index}" not found on ${collection} (skip)`);
+    } else {
+      console.log(`   ✗ ${collection}/${index}: ${err.message}`);
+    }
+  }
+}
+
+async function main() {
   try {
     console.log('Connecting to MongoDB...');
     await mongoose.connect(process.env.MONGODB_URI_JOSE);
-    console.log('MongoDB Connected\n');
+    console.log('Connected\n');
 
     const db = mongoose.connection.db;
 
-    // Drop unique indexes from Orders collection
-    console.log('Dropping unique index from Orders...');
-    try {
-      await db.collection('orders').dropIndex('customerEmail_1');
-      console.log('Dropped customerEmail_1 index from orders');
-    } catch (err) {
-      if (err.code === 27) {
-        console.log('Index customerEmail_1 does not exist on orders');
-      } else {
-        console.log('Error dropping orders index:', err.message);
-      }
-    }
+    // Orders
+    console.log('Orders:');
+    await dropIndex(db, 'orders', 'customerEmail_1');
 
-    // Drop unique indexes from CustomOrders collection
-    console.log('\nDropping unique index from CustomOrders...');
-    try {
-      await db.collection('customorders').dropIndex('customerEmail_1');
-      console.log('Dropped customerEmail_1 index from customorders');
-    } catch (err) {
-      if (err.code === 27) {
-        console.log('Index customerEmail_1 does not exist on customorders');
-      } else {
-        console.log('Error dropping customorders index:', err.message);
-      }
-    }
+    // CustomOrders — old index + any new ones that might be stale
+    console.log('\nCustomOrders:');
+    await dropIndex(db, 'customorders', 'customerEmail_1');
+    await dropIndex(db, 'customorders', 'orderFileURL_1');
 
-    // Drop unique indexes from Testimonials collection
-    console.log('\nDropping unique index from Testimonials...');
-    try {
-      await db.collection('testimonials').dropIndex('writerEmail_1');
-      console.log('Dropped writerEmail_1 index from testimonials');
-    } catch (err) {
-      if (err.code === 27) {
-        console.log('Index writerEmail_1 does not exist on testimonials');
-      } else {
-        console.log('Error dropping testimonials index:', err.message);
-      }
-    }
+    // Testimonials
+    console.log('\nTestimonials:');
+    await dropIndex(db, 'testimonials', 'writerEmail_1');
+
+    // Users — just in case
+    console.log('\nUsers:');
+    await dropIndex(db, 'users', 'email_1');
+
+    // Inventory — just in case
+    console.log('\nInventory:');
+    await dropIndex(db, 'inventory', 'itemName_1');
 
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('INDEXES DROPPED SUCCESSFULLY!');
+    console.log('DONE. Next steps:');
+    console.log('  1. node seed-data.js');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-    console.log('Next steps:');
-    console.log('   1. Replace your model files with the fixed versions');
-    console.log('   2. Restart your server');
-    console.log('   3. Run: node seed-data.js\n');
-
     await mongoose.disconnect();
-    console.log('Disconnected from MongoDB');
     process.exit(0);
-
-  } catch (error) {
-    console.error('Error:', error);
+  } catch (err) {
+    console.error('Error:', err);
     process.exit(1);
   }
 }
 
-dropUniqueIndexes();
+main();

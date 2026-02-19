@@ -646,3 +646,502 @@
   .add-item-form .form-grid { grid-template-columns: 1fr; .span-2 { grid-column: span 1; } }
   .section-toolbar { flex-direction: column; align-items: flex-start; }
 }
+
+/* ImagePicker component */
+.image-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  .image-picker-inner {
+    width: 100%;
+    height: 130px;
+    border: 2px dashed var(--border-light);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+
+    &:hover { border-color: var(--brand); }
+
+    .image-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-preview-empty {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+
+      svg { font-size: 1.5rem; }
+    }
+  }
+
+  .image-picker-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+}
+
+.edit-image-upload {
+  margin-top: 10px;
+
+  .image-picker .image-picker-inner { height: 80px; }
+}
+
+/* ── Custom Orders Admin Cards ─────────────────────────────── */
+.custom-orders-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-co-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+
+  &.expanded { border-color: rgba(88,101,242,0.4); }
+}
+
+.admin-co-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  gap: 1rem;
+  transition: background-color 0.12s ease;
+  flex-wrap: wrap;
+
+  &:hover { background-color: var(--bg-hover); }
+}
+
+.admin-co-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+
+  .admin-co-id {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .admin-co-customer {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+
+    span:first-child { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  }
+
+  .admin-co-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+}
+
+.admin-co-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+
+  .admin-co-price-range {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .admin-co-price-confirmed {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--green);
+  }
+
+  .expand-arrow {
+    font-size: 20px;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+    line-height: 1;
+    &.open { transform: rotate(90deg); }
+  }
+}
+
+.admin-co-card-body {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: slideDown 0.18s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.admin-co-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .admin-co-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+.admin-co-file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-co-slice-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+}
+
+.admin-co-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+
+  .admin-co-stat {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .admin-co-stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .admin-co-stat-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--brand);
+      letter-spacing: -0.5px;
+    }
+  }
+}
+
+.admin-co-pricing {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .admin-co-price-band {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background-color: rgba(88,101,242,0.07);
+    border: 1px solid rgba(88,101,242,0.2);
+    border-radius: var(--radius-md);
+
+    .admin-co-price-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .admin-co-price-val   { font-size: 17px; font-weight: 800; color: var(--brand); letter-spacing: -0.5px; }
+  }
+
+  .admin-co-breakdown {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 12px;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+
+      &:last-child { border-bottom: none; }
+      &.breakdown-discount { color: var(--green); }
+
+      span:last-child { font-weight: 600; color: var(--text-primary); }
+    }
+  }
+
+  .admin-co-disclaimer {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .admin-co-confirm-price {
+    label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; display: block; }
+
+    .confirm-price-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .price-prefix { font-size: 16px; font-weight: 700; color: var(--text-muted); }
+
+      .confirm-price-input {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-sm);
+        padding: 8px 10px;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: inherit;
+        width: 120px;
+
+        &:focus { border-color: var(--brand); box-shadow: 0 0 0 2px rgba(88,101,242,0.2); outline: none; }
+      }
+    }
+
+    .confirmed-price-note { font-size: 11px; color: var(--green); margin: 5px 0 0; font-weight: 600; }
+  }
+}
+
+.admin-co-details-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  li { font-size: 13px; color: var(--text-secondary); }
+}
+
+.admin-co-notes {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Custom Orders Admin Card list ───────────────────────────── */
+.custom-orders-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-co-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+  &.expanded { border-color: rgba(88,101,242,0.4); }
+}
+
+.admin-co-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  gap: 1rem;
+  flex-wrap: wrap;
+  transition: background-color 0.12s ease;
+  &:hover { background-color: var(--bg-hover); }
+}
+
+.admin-co-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+
+  .admin-co-id { font-family: monospace; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+  .admin-co-customer {
+    display: flex; flex-direction: column; gap: 1px;
+    span:first-child { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  }
+  .admin-co-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+}
+
+.admin-co-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+
+  .admin-co-price-range    { font-size: 13px; font-weight: 700; color: var(--text-muted); }
+  .admin-co-price-confirmed{ font-size: 14px; font-weight: 800; color: var(--green); }
+
+  .expand-arrow {
+    font-size: 20px;
+    color: var(--text-muted);
+    line-height: 1;
+    transition: transform 0.2s ease;
+    &.open { transform: rotate(90deg); }
+  }
+}
+
+.admin-co-card-body {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: coSlideDown 0.18s ease;
+}
+
+@keyframes coSlideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.admin-co-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .admin-co-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+.admin-co-file-row  { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.admin-co-slice-row { display: flex; align-items: center; gap: 10px; label { font-size: 12px; color: var(--text-muted); font-weight: 500; } }
+
+.admin-co-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+
+  .admin-co-stat {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .admin-co-stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .admin-co-stat-value { font-size: 16px; font-weight: 800; color: var(--brand); letter-spacing: -0.5px; }
+  }
+}
+
+.admin-co-pricing {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .admin-co-price-band {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(88,101,242,0.07);
+    border: 1px solid rgba(88,101,242,0.2);
+    border-radius: var(--radius-md);
+    .admin-co-price-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .admin-co-price-val   { font-size: 17px; font-weight: 800; color: var(--brand); letter-spacing: -0.5px; }
+  }
+
+  .admin-co-breakdown {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 12px;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      &:last-child { border-bottom: none; }
+      &.breakdown-discount { color: var(--green); }
+      span:last-child { font-weight: 600; color: var(--text-primary); }
+    }
+  }
+
+  .admin-co-disclaimer { font-size: 11px; color: var(--text-muted); font-style: italic; margin: 0; line-height: 1.5; }
+
+  .admin-co-confirm-price {
+    label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; display: block; }
+
+    .confirm-price-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      .price-prefix { font-size: 16px; font-weight: 700; color: var(--text-muted); }
+      .confirm-price-input {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-sm);
+        padding: 8px 10px;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: inherit;
+        width: 120px;
+        &:focus { border-color: var(--brand); box-shadow: 0 0 0 2px rgba(88,101,242,0.2); outline: none; }
+      }
+    }
+    .confirmed-price-note { font-size: 11px; color: var(--green); margin: 5px 0 0; font-weight: 600; }
+  }
+}
+
+.admin-co-details-list {
+  margin: 0; padding-left: 1.25rem;
+  display: flex; flex-direction: column; gap: 3px;
+  li { font-size: 13px; color: var(--text-secondary); }
+}
+.admin-co-notes { font-size: 13px; color: var(--text-muted); font-style: italic; margin: 0; }

@@ -2,18 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   FaTrash, FaEdit, FaCheck, FaTimes, FaPlus,
   FaUsers, FaShoppingBag, FaBox, FaCubes, FaChartBar,
-  FaSave, FaSearch, FaImage
+  FaSave, FaSearch, FaImage, FaDownload, FaDollarSign, FaInfoCircle
 } from "react-icons/fa";
 import { usersAPI, ordersAPI, customOrdersAPI, inventoryAPI } from "../utils/api";
 
-const ORDER_STATUSES = ["Pending", "Processing", "Completed", "Cancelled"];
-const SLICE_STATUSES = ["pending", "slicing", "done", "error", "unsupported"];
-const MATERIALS      = ["PLA", "PETG", "ABS", "TPU", "ASA", "NYLON", "RESIN"];
+const ORDER_STATUSES        = ["Pending", "Processing", "Completed", "Cancelled"];
+const ORDER_STATUSES_CUSTOM = ["Pending", "Reviewing", "Quoted", "In Progress", "Completed", "Cancelled"];
+const SLICE_STATUSES        = ["pending", "slicing", "done", "error", "unsupported"];
+const MATERIALS             = ["PLA", "PETG", "ABS", "TPU", "ASA", "NYLON", "RESIN"];
 
 const STATUS_COLORS = {
   Pending: "badge-warning", Processing: "badge-processing",
   Completed: "badge-success", Cancelled: "badge-danger",
 };
+
+/* ── Shared small components ─────────────────────────────────────── */
 
 function StatCard({ icon, label, value, sub }) {
   return (
@@ -42,7 +45,6 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
   );
 }
 
-// Reusable image file picker that shows a preview
 function ImagePicker({ value, onChange, label = "Product Image" }) {
   const inputRef = useRef();
   const [preview, setPreview] = useState(value || "");
@@ -69,6 +71,244 @@ function ImagePicker({ value, onChange, label = "Product Image" }) {
   );
 }
 
+/* ── Admin Custom Order Card (expandable) ────────────────────────── */
+
+function AdminCustomOrderCard({ order: o, savingId, onSliceStatus, onDelete, onUpdate, token }) {
+  const [expanded,     setExpanded]     = useState(false);
+  const [confirmPrice, setConfirmPrice] = useState(o.confirmedPrice ?? "");
+  const [savingPrice,  setSavingPrice]  = useState(false);
+  const [savingStatus, setSavingStatus] = useState(false);
+
+  const handleConfirmPrice = async () => {
+    if (!confirmPrice) return;
+    setSavingPrice(true);
+    try {
+      const result = await customOrdersAPI.update(token, o._id, { confirmedPrice: parseFloat(confirmPrice) });
+      if (result.data) onUpdate(result.data);
+    } catch { alert("Failed to set price."); }
+    finally { setSavingPrice(false); }
+  };
+
+  const handleStatusChange = async (status) => {
+    setSavingStatus(true);
+    try {
+      const result = await customOrdersAPI.update(token, o._id, { status });
+      if (result.data) onUpdate(result.data);
+    } catch { alert("Failed to update status."); }
+    finally { setSavingStatus(false); }
+  };
+
+  const handleSliceStatus = (sliceStatus) => onSliceStatus(o._id, sliceStatus);
+
+  const est   = o.estimatedCost;
+  const stats = o.gcodeStats;
+
+  return (
+    <div className={`admin-co-card ${expanded ? "expanded" : ""}`}>
+      {/* Header row — always visible, click to expand */}
+      <div className="admin-co-card-header" onClick={() => setExpanded(p => !p)}>
+        <div className="admin-co-card-left">
+          <span className="admin-co-id">#{o._id.slice(-6).toUpperCase()}</span>
+          <div className="admin-co-customer">
+            <span>{o.customerName}</span>
+            <span className="td-muted td-small">{o.customerEmail}</span>
+          </div>
+          <div className="admin-co-chips">
+            {o.material && <span className="chip">{o.material}</span>}
+            {o.color    && <span className="chip chip-muted">{o.color}</span>}
+            {o.quantity > 1 && <span className="chip chip-muted">×{o.quantity}</span>}
+          </div>
+        </div>
+        <div className="admin-co-card-right">
+          {est?.low && !o.confirmedPrice && (
+            <span className="admin-co-price-range">${est.low}–${est.high}</span>
+          )}
+          {o.confirmedPrice && (
+            <span className="admin-co-price-confirmed">${parseFloat(o.confirmedPrice).toFixed(2)}</span>
+          )}
+          <select
+            className={`status-select status-${(o.status || "Pending").toLowerCase().replace(/\s+/g, "-")}`}
+            value={o.status || "Pending"}
+            onChange={e => { e.stopPropagation(); handleStatusChange(e.target.value); }}
+            disabled={savingStatus}
+            onClick={e => e.stopPropagation()}
+          >
+            {ORDER_STATUSES_CUSTOM.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <button className="btn btn-danger btn-small icon-btn"
+            onClick={e => { e.stopPropagation(); onDelete(o._id); }}>
+            <FaTrash />
+          </button>
+          <span className={`expand-arrow ${expanded ? "open" : ""}`}>›</span>
+        </div>
+      </div>
+
+      {/* Expanded body */}
+      {expanded && (
+        <div className="admin-co-card-body">
+
+          {/* File + Slicing */}
+          <div className="admin-co-section">
+            <div className="admin-co-section-title">3D File & Slicing</div>
+            <div className="admin-co-file-row">
+              {o.orderFileURL
+                ? <a href={o.orderFileURL} target="_blank" rel="noopener noreferrer" className="file-link">
+                    {o.fileName || "View 3D File ↗"}
+                  </a>
+                : <span className="td-muted">No file attached</span>
+              }
+              {o.gcodeURL && (
+                <a href={o.gcodeURL} download className="btn btn-small btn-secondary gcode-btn">
+                  <FaDownload /> Download G-code
+                </a>
+              )}
+            </div>
+            <div className="admin-co-slice-row">
+              <label>Slice status:</label>
+              <select
+                className={`status-select status-slice-${o.sliceStatus || "pending"}`}
+                value={o.sliceStatus || "pending"}
+                onChange={e => handleSliceStatus(e.target.value)}
+                disabled={savingId === o._id}
+              >
+                {SLICE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Gcode stats — only shown when slicer produced output */}
+          {stats && (stats.printTimeMins || stats.filamentUsedG || stats.layerCount) && (
+            <div className="admin-co-section">
+              <div className="admin-co-section-title">Slicer Output</div>
+              <div className="admin-co-stats-grid">
+                {stats.printTimeMins != null && (
+                  <div className="admin-co-stat">
+                    <span className="admin-co-stat-label">Print Time</span>
+                    <span className="admin-co-stat-value">
+                      {Math.floor(stats.printTimeMins / 60)}h {stats.printTimeMins % 60}m
+                    </span>
+                  </div>
+                )}
+                {stats.filamentUsedG != null && (
+                  <div className="admin-co-stat">
+                    <span className="admin-co-stat-label">Filament Used</span>
+                    <span className="admin-co-stat-value">{stats.filamentUsedG}g</span>
+                  </div>
+                )}
+                {stats.filamentUsedMm != null && (
+                  <div className="admin-co-stat">
+                    <span className="admin-co-stat-label">Filament Length</span>
+                    <span className="admin-co-stat-value">{(stats.filamentUsedMm / 1000).toFixed(2)}m</span>
+                  </div>
+                )}
+                {stats.layerCount != null && (
+                  <div className="admin-co-stat">
+                    <span className="admin-co-stat-label">Layer Count</span>
+                    <span className="admin-co-stat-value">{stats.layerCount.toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Pricing */}
+          {est?.low && (
+            <div className="admin-co-section">
+              <div className="admin-co-section-title">Cost Estimate</div>
+              <div className="admin-co-pricing">
+                <div className="admin-co-price-band">
+                  <span className="admin-co-price-label">Algorithm estimate</span>
+                  <span className="admin-co-price-val">${est.low} – ${est.high}</span>
+                </div>
+
+                {est.breakdown && (
+                  <div className="admin-co-breakdown">
+                    <div className="breakdown-row">
+                      <span>Material cost</span>
+                      <span>${est.breakdown.materialCost}</span>
+                    </div>
+                    <div className="breakdown-row">
+                      <span>Labor</span>
+                      <span>${est.breakdown.laborCost}</span>
+                    </div>
+                    <div className="breakdown-row">
+                      <span>Complexity ({est.breakdown.complexityTier})</span>
+                      <span>${est.breakdown.complexityCost}</span>
+                    </div>
+                    {est.breakdown.discountPct > 0 && (
+                      <div className="breakdown-row breakdown-discount">
+                        <span>Bulk discount ({est.breakdown.discountPct}%)</span>
+                        <span>applied</span>
+                      </div>
+                    )}
+                    {est.breakdown.estimatedGrams && (
+                      <div className="breakdown-row">
+                        <span>Est. filament</span>
+                        <span>{est.breakdown.estimatedGrams}g</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {est.disclaimer && <p className="admin-co-disclaimer">{est.disclaimer}</p>}
+
+                {/* Confirm price input */}
+                <div className="admin-co-confirm-price">
+                  <label>Set confirmed price (USD)</label>
+                  <div className="confirm-price-row">
+                    <span className="price-prefix">$</span>
+                    <input
+                      type="number" step="0.01" min="0"
+                      value={confirmPrice}
+                      onChange={e => setConfirmPrice(e.target.value)}
+                      placeholder={est.low}
+                      className="confirm-price-input"
+                    />
+                    <button
+                      className="btn btn-primary btn-small"
+                      onClick={handleConfirmPrice}
+                      disabled={savingPrice || !confirmPrice}
+                    >
+                      {savingPrice ? "…" : <><FaCheck /> Confirm</>}
+                    </button>
+                  </div>
+                  {o.confirmedPrice && (
+                    <p className="confirmed-price-note">
+                      Currently set: ${parseFloat(o.confirmedPrice).toFixed(2)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Order details */}
+          {Array.isArray(o.orderDetails) && o.orderDetails.length > 0 && (
+            <div className="admin-co-section">
+              <div className="admin-co-section-title">Order Details</div>
+              <ul className="admin-co-details-list">
+                {o.orderDetails.map((d, i) => (
+                  <li key={i}>{typeof d === "string" ? d : d.description || JSON.stringify(d)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {o.notes && (
+            <div className="admin-co-section">
+              <div className="admin-co-section-title">Notes</div>
+              <p className="admin-co-notes">{o.notes}</p>
+            </div>
+          )}
+
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Main Admin component ────────────────────────────────────────── */
+
 function Admin({ token, user }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [users,        setUsers]        = useState([]);
@@ -81,16 +321,13 @@ function Admin({ token, user }) {
   const [confirm,  setConfirm]  = useState(null);
   const [savingId, setSavingId] = useState(null);
 
-  // Inventory add form
-  const [showAddItem, setShowAddItem] = useState(false);
-  const [addForm,     setAddForm]     = useState({ itemName:"", itemPrice:"", amountInStock:"", filament:"PLA", description:"" });
-  const [addImageFile, setAddImageFile] = useState(null);
-  const [addLoading,  setAddLoading]  = useState(false);
-  const [addError,    setAddError]    = useState("");
-
-  // Inventory inline edit
-  const [editingItem, setEditingItem] = useState(null);
-  const [itemForm,    setItemForm]    = useState({});
+  const [showAddItem,   setShowAddItem]   = useState(false);
+  const [addForm,       setAddForm]       = useState({ itemName:"", itemPrice:"", amountInStock:"", filament:"PLA", description:"" });
+  const [addImageFile,  setAddImageFile]  = useState(null);
+  const [addLoading,    setAddLoading]    = useState(false);
+  const [addError,      setAddError]      = useState("");
+  const [editingItem,   setEditingItem]   = useState(null);
+  const [itemForm,      setItemForm]      = useState({});
   const [editImageFile, setEditImageFile] = useState(null);
 
   useEffect(() => { if (token) fetchAll(); }, [token]);
@@ -104,15 +341,15 @@ function Admin({ token, user }) {
         customOrdersAPI.getAll(token),
         inventoryAPI.getAll(),
       ]);
-      setUsers(u.data || []);
-      setOrders(o.data || []);
+      setUsers(u.data        || []);
+      setOrders(o.data       || []);
       setCustomOrders(co.data || []);
-      setInventory(inv.data || inv || []);
-    } catch { setError("Failed to load dashboard data."); }
+      setInventory(inv.data  || inv || []);
+    } catch { setError("Failed to load dashboard data. Check admin privileges."); }
     finally { setLoading(false); }
   };
 
-  const doConfirm   = (message, action) => setConfirm({ message, action });
+  const doConfirm    = (message, action) => setConfirm({ message, action });
   const closeConfirm = () => setConfirm(null);
   const runConfirm   = () => { confirm?.action(); closeConfirm(); };
 
@@ -152,64 +389,45 @@ function Admin({ token, user }) {
     try {
       await customOrdersAPI.update(token, id, { sliceStatus });
       setCustomOrders(p => p.map(o => o._id === id ? { ...o, sliceStatus } : o));
-    } catch { alert("Failed to update status."); }
+    } catch { alert("Failed to update slice status."); }
     finally { setSavingId(null); }
   };
   const deleteCustom = (id) => doConfirm("Delete this custom order?", async () => {
     await customOrdersAPI.delete(token, id);
     setCustomOrders(p => p.filter(o => o._id !== id));
   });
+  const updateCustomOrder = (updated) =>
+    setCustomOrders(p => p.map(o => o._id === updated._id ? updated : o));
 
   // Inventory
   const startEditItem = (item) => {
-    setEditingItem(item._id);
-    setEditImageFile(null);
-    setItemForm({
-      itemName:      item.itemName,
-      itemPrice:     item.itemPrice,
-      amountInStock: item.amountInStock,
-      filament:      item.filament || "PLA",
-      imageURL:      item.imageURL || item.imageUrl || "",
-      description:   item.description || "",
-    });
+    setEditingItem(item._id); setEditImageFile(null);
+    setItemForm({ itemName: item.itemName, itemPrice: item.itemPrice, amountInStock: item.amountInStock, filament: item.filament || "PLA", imageURL: item.imageURL || item.imageUrl || "", description: item.description || "" });
   };
   const cancelEditItem = () => { setEditingItem(null); setItemForm({}); setEditImageFile(null); };
-
   const saveItem = async (id) => {
     setSavingId(id);
     try {
-      // Pass editImageFile as 3rd arg — api.js will append it to FormData if present
-      const result = await inventoryAPI.update(token, id, itemForm, editImageFile);
+      const result  = await inventoryAPI.update(token, id, itemForm, editImageFile);
       const updated = result.data || result;
       setInventory(p => p.map(i => i._id === id ? { ...i, ...updated } : i));
-      setEditingItem(null);
-      setEditImageFile(null);
+      setEditingItem(null); setEditImageFile(null);
     } catch { alert("Failed to save changes."); }
     finally { setSavingId(null); }
   };
-
   const deleteItem = (id, name) => doConfirm(`Delete "${name}" from inventory?`, async () => {
     await inventoryAPI.delete(token, id);
     setInventory(p => p.filter(i => i._id !== id));
   });
-
   const handleAddItem = async (e) => {
-    e.preventDefault();
-    setAddError("");
+    e.preventDefault(); setAddError("");
     if (!addForm.itemName || !addForm.itemPrice) { setAddError("Name and price are required."); return; }
     setAddLoading(true);
     try {
-      const data = {
-        ...addForm,
-        itemPrice:     parseFloat(addForm.itemPrice),
-        amountInStock: parseInt(addForm.amountInStock, 10) || 0,
-      };
-      // addImageFile passed as 3rd arg — api.js appends it to FormData
-      const result  = await inventoryAPI.create(token, data, addImageFile);
+      const result  = await inventoryAPI.create(token, { ...addForm, itemPrice: parseFloat(addForm.itemPrice), amountInStock: parseInt(addForm.amountInStock, 10) || 0 }, addImageFile);
       const newItem = result.data || result;
       setInventory(p => [newItem, ...p]);
-      setShowAddItem(false);
-      setAddImageFile(null);
+      setShowAddItem(false); setAddImageFile(null);
       setAddForm({ itemName:"", itemPrice:"", amountInStock:"", filament:"PLA", description:"" });
     } catch { setAddError("Failed to add item."); }
     finally { setAddLoading(false); }
@@ -222,11 +440,11 @@ function Admin({ token, user }) {
   };
 
   const TABS = [
-    { id: "overview",  icon: <FaChartBar />,    label: "Overview" },
-    { id: "users",     icon: <FaUsers />,        label: `Users (${users.length})` },
-    { id: "orders",    icon: <FaShoppingBag />,  label: `Orders (${orders.length})` },
-    { id: "custom",    icon: <FaBox />,           label: `Custom (${customOrders.length})` },
-    { id: "inventory", icon: <FaCubes />,         label: `Inventory (${inventory.length})` },
+    { id: "overview",  icon: <FaChartBar />,   label: "Overview" },
+    { id: "users",     icon: <FaUsers />,       label: `Users (${users.length})` },
+    { id: "orders",    icon: <FaShoppingBag />, label: `Orders (${orders.length})` },
+    { id: "custom",    icon: <FaBox />,          label: `Custom (${customOrders.length})` },
+    { id: "inventory", icon: <FaCubes />,        label: `Inventory (${inventory.length})` },
   ];
 
   const filteredUsers  = filterList(users,        ["name","email"]);
@@ -262,6 +480,7 @@ function Admin({ token, user }) {
           {error   && <div className="error-message">{error}</div>}
           {loading && <div className="loading">Loading dashboard…</div>}
 
+          {/* ── Overview ── */}
           {!loading && activeTab === "overview" && (
             <div className="admin-overview">
               <h2>Overview</h2>
@@ -269,9 +488,9 @@ function Admin({ token, user }) {
                 <StatCard icon={<FaUsers />}       label="Total Users"     value={users.length} />
                 <StatCard icon={<FaShoppingBag />} label="Total Orders"    value={orders.length}
                   sub={`${orders.filter(o=>o.status==="Completed").length} completed`} />
-                <StatCard icon={<FaBox />}         label="Custom Orders"   value={customOrders.length}
+                <StatCard icon={<FaBox />}          label="Custom Orders"   value={customOrders.length}
                   sub={`${customOrders.filter(o=>o.sliceStatus==="done").length} sliced`} />
-                <StatCard icon={<FaCubes />}       label="Inventory Items" value={inventory.length}
+                <StatCard icon={<FaCubes />}        label="Inventory Items" value={inventory.length}
                   sub={`${inventory.filter(i=>i.amountInStock>0).length} in stock`} />
               </div>
               <div className="overview-tables">
@@ -310,6 +529,7 @@ function Admin({ token, user }) {
             </div>
           )}
 
+          {/* ── Users ── */}
           {!loading && activeTab === "users" && (
             <div className="admin-section">
               <div className="section-toolbar">
@@ -354,6 +574,7 @@ function Admin({ token, user }) {
             </div>
           )}
 
+          {/* ── Orders ── */}
           {!loading && activeTab === "orders" && (
             <div className="admin-section">
               <div className="section-toolbar">
@@ -389,6 +610,7 @@ function Admin({ token, user }) {
             </div>
           )}
 
+          {/* ── Custom Orders ── */}
           {!loading && activeTab === "custom" && (
             <div className="admin-section">
               <div className="section-toolbar">
@@ -398,45 +620,26 @@ function Admin({ token, user }) {
                   <input className="search-input" placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
                 </div>
               </div>
-              <div className="admin-table-wrap">
-                <table className="admin-table">
-                  <thead><tr><th>ID</th><th>Customer</th><th>Material</th><th>File</th><th>Slice Status</th><th>Date</th><th>Actions</th></tr></thead>
-                  <tbody>
-                    {filteredCustom.map(o => (
-                      <tr key={o._id}>
-                        <td className="td-id">#{o._id.slice(-6).toUpperCase()}</td>
-                        <td>
-                          <div>{o.customerName}</div>
-                          <div className="td-muted td-small">{o.customerEmail}</div>
-                        </td>
-                        <td>
-                          {o.material && <span className="chip">{o.material}</span>}
-                          {o.color    && <span className="chip chip-muted">{o.color}</span>}
-                        </td>
-                        <td>
-                          {o.orderFileURL
-                            ? <a href={o.orderFileURL} target="_blank" rel="noopener noreferrer" className="file-link">{o.fileName || "View ↗"}</a>
-                            : <span className="td-muted">—</span>
-                          }
-                          {o.gcodeURL && <a href={o.gcodeURL} download className="gcode-dl">G-code ↓</a>}
-                        </td>
-                        <td>
-                          <select className={`status-select status-slice-${o.sliceStatus || "pending"}`}
-                            value={o.sliceStatus || "pending"} onChange={e => updateCustomStatus(o._id, e.target.value)} disabled={savingId === o._id}>
-                            {SLICE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                          </select>
-                        </td>
-                        <td className="td-muted">{new Date(o.createdAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</td>
-                        <td><button className="btn btn-danger btn-small icon-btn" onClick={() => deleteCustom(o._id)}><FaTrash /></button></td>
-                      </tr>
-                    ))}
-                    {filteredCustom.length === 0 && <tr><td colSpan={7} className="no-results">No custom orders found.</td></tr>}
-                  </tbody>
-                </table>
+              <div className="custom-orders-admin-list">
+                {filteredCustom.length === 0 && (
+                  <p className="no-results" style={{ padding:"2rem", textAlign:"center" }}>No custom orders found.</p>
+                )}
+                {filteredCustom.map(o => (
+                  <AdminCustomOrderCard
+                    key={o._id}
+                    order={o}
+                    savingId={savingId}
+                    onSliceStatus={updateCustomStatus}
+                    onDelete={deleteCustom}
+                    onUpdate={updateCustomOrder}
+                    token={token}
+                  />
+                ))}
               </div>
             </div>
           )}
 
+          {/* ── Inventory ── */}
           {!loading && activeTab === "inventory" && (
             <div className="admin-section">
               <div className="section-toolbar">
@@ -551,6 +754,7 @@ function Admin({ token, user }) {
               </div>
             </div>
           )}
+
         </main>
       </div>
     </div>
