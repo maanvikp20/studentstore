@@ -2,11 +2,11 @@ const express = require("express");
 const router  = express.Router();
 
 const { requireAuth, requireAdmin } = require("../middleware/auth");
-const { uploadModel, uploadGcode }  = require("../middleware/upload");
+const { uploadModel, uploadGcode: uploadGcodeMiddleware } = require("../middleware/upload");
 const {
   getAllCustomOrders, getSpecificCustomOrder,
   createCustomOrder, updateCustomOrder,
-  deleteCustomOrder, uploadGcode: uploadGcodeHandler,
+  deleteCustomOrder, uploadGcode,
 } = require("../controllers/customOrderController");
 
 router.use(requireAuth);
@@ -18,6 +18,6 @@ router.post("/",    uploadModel.single("file"), createCustomOrder);
 router.put("/:id",  updateCustomOrder);
 router.delete("/:id", deleteCustomOrder);
 
-router.post("/:id/gcode", requireAdmin, uploadGcode.single("gcode"), uploadGcodeHandler);
+router.post("/:id/gcode", requireAdmin, uploadGcodeMiddleware.single("gcode"), uploadGcode);
 
 module.exports = router;
