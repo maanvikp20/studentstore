@@ -1,6 +1,32 @@
-const CustomOrders = require("../models/CustomOrders");
+const CustomOrders  = require("../models/CustomOrders");
 const { streamToCloudinary } = require("../middleware/upload");
 const { calculatePrintCost } = require("../utils/printPricing");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// ── Generate a signed upload signature for direct browser → Cloudinary upload
+async function signUpload(req, res, next) {
+  try {
+    const timestamp = Math.round(Date.now() / 1000);
+    const folder    = "3d-files";
+    const signature = cloudinary.utils.api_sign_request(
+      { timestamp, folder },
+      process.env.CLOUDINARY_API_SECRET
+    );
+    res.json({
+      signature,
+      timestamp,
+      folder,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey:    process.env.CLOUDINARY_API_KEY,
+    });
+  } catch (err) { next(err); }
+}
 
 async function getAllCustomOrders(req, res, next) {
   try {
@@ -21,9 +47,14 @@ async function getSpecificCustomOrder(req, res, next) {
   } catch (err) { next(err); }
 }
 
+// ── Create order — receives Cloudinary URL from client (no file goes through server)
 async function createCustomOrder(req, res, next) {
   try {
-    const { customerName, customerEmail, orderDetails, material, color, quantity, notes } = req.body;
+    const {
+      customerName, customerEmail, orderDetails,
+      material, color, quantity, notes,
+      orderFileURL, fileName, fileType, fileSizeBytes,
+    } = req.body;
 
     const parsedDetails = (() => {
       try { return JSON.parse(orderDetails); }
@@ -33,48 +64,26 @@ async function createCustomOrder(req, res, next) {
     const qty = parseInt(quantity, 10) || 1;
     const mat = material || "PLA";
 
-    let orderFileURL = "";
-    let fileName     = "";
-    let fileType     = "";
-
-    let estimatedCost = calculatePrintCost({
-      fileSizeBytes: req.file?.size || 0,
+    const estimatedCost = calculatePrintCost({
+      fileSizeBytes: parseInt(fileSizeBytes, 10) || 0,
       material: mat,
       quantity: qty,
-      fileType: "",
+      fileType: fileType || "",
     });
-
-    if (req.file) {
-      fileName = req.file.originalname;
-      fileType = fileName.split(".").pop().toLowerCase();
-
-      // Upload 3D model to Cloudinary
-      orderFileURL = await streamToCloudinary(req.file.buffer, {
-        folder: "3d-files",
-        resource_type: "raw",
-        public_id: `${Date.now()}-${fileName}`,
-      });
-
-      estimatedCost = calculatePrintCost({
-        fileSizeBytes: req.file.size,
-        material: mat,
-        quantity: qty,
-        fileType,
-      });
-    }
 
     const customOrder = new CustomOrders({
       customer: req.user.id,
       customerName, customerEmail,
       orderDetails: parsedDetails,
-      orderFileURL,
-      gcodeURL: null,
-      sliceStatus: "pending",
-      fileName, fileType,
+      orderFileURL:  orderFileURL  || "",
+      fileName:      fileName      || "",
+      fileType:      fileType      || "",
+      gcodeURL:      null,
+      sliceStatus:   "pending",
       material: mat,
-      color: color || "",
+      color:    color    || "",
       quantity: qty,
-      notes: notes || "",
+      notes:    notes    || "",
       estimatedCost,
       gcodeStats: {},
     });
@@ -115,7 +124,7 @@ async function deleteCustomOrder(req, res, next) {
   } catch (err) { next(err); }
 }
 
-// Admin only — upload a gcode file for an existing custom order
+// ── Admin manually uploads a sliced .gcode file
 async function uploadGcode(req, res, next) {
   try {
     if (!req.file) return res.status(400).json({ message: "No gcode file provided" });
@@ -124,13 +133,13 @@ async function uploadGcode(req, res, next) {
     if (!order) return res.status(404).json({ message: "Custom order not found" });
 
     const gcodeURL = await streamToCloudinary(req.file.buffer, {
-      folder: "gcode-files",
+      folder:        "gcode-files",
       resource_type: "raw",
-      public_id: `${Date.now()}-${req.file.originalname}`,
+      public_id:     `${Date.now()}-${req.file.originalname}`,
     });
 
-    order.gcodeURL     = gcodeURL;
-    order.sliceStatus  = "done";
+    order.gcodeURL    = gcodeURL;
+    order.sliceStatus = "done";
     await order.save();
 
     res.json({ data: order });
@@ -138,10 +147,8 @@ async function uploadGcode(req, res, next) {
 }
 
 module.exports = {
-  getAllCustomOrders,
-  getSpecificCustomOrder,
-  createCustomOrder,
-  updateCustomOrder,
-  deleteCustomOrder,
-  uploadGcode,
+  signUpload,
+  getAllCustomOrders, getSpecificCustomOrder,
+  createCustomOrder, updateCustomOrder,
+  deleteCustomOrder, uploadGcode,
 };

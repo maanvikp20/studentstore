@@ -120,7 +120,7 @@ function FileDropZone({ onFile, file, uploading, uploadProgress }) {
             <div className="upload-bar-wrap">
               <div className="upload-bar" style={{ width: `${uploadProgress}%` }} />
             </div>
-            <span className="upload-pct">{uploadProgress}% uploading to server…</span>
+            <span className="upload-pct">{uploadProgress}% uploading to Cloudinary…</span>
           </>
         )}
       </div>
@@ -146,6 +146,7 @@ function FileDropZone({ onFile, file, uploading, uploadProgress }) {
   );
 }
 
+/* ── Slice status badge ──────────────────────────────────────────── */
 function SliceStatus({ status }) {
   if (!status) return null;
   const map = {
@@ -159,6 +160,7 @@ function SliceStatus({ status }) {
   return <span className={`slice-badge ${s.cls}`}>{s.icon} {s.text}</span>;
 }
 
+/* ── Main component ──────────────────────────────────────────────── */
 function CustomOrders({ token, user }) {
   const [customOrders,   setCustomOrders]   = useState([]);
   const [loading,        setLoading]        = useState(true);
@@ -181,6 +183,7 @@ function CustomOrders({ token, user }) {
     notes:         "",
   });
 
+  // Live estimate — updates instantly when file/material/quantity changes
   const liveEstimate = file
     ? clientEstimate(file.size, formData.material, formData.quantity)
     : null;
@@ -205,25 +208,42 @@ function CustomOrders({ token, user }) {
     if (!details.length) { setSubmitError("Please enter at least one order detail."); return; }
 
     const ext = file.name.split(".").pop().toLowerCase();
-    const data = {
-      customerName:  formData.customerName,
-      customerEmail: formData.customerEmail,
-      orderDetails:  details,
-      fileName:      file.name,
-      fileType:      ext,
-      material:      formData.material,
-      color:         formData.color,
-      quantity:      parseInt(formData.quantity, 10) || 1,
-      notes:         formData.notes,
-      sliceForPrusa: ["stl", "3mf"].includes(ext),
-    };
 
     setUploading(true); setUploadProgress(0); setSubmitLoading(true);
     try {
-      const result = await customOrdersAPI.createWithProgress(
-        token, data, file, (pct) => setUploadProgress(pct)
+      // Step 1 — get upload signature from our server
+      const sig = await customOrdersAPI.getUploadSignature(token);
+      if (!sig.signature) throw new Error("Could not get upload credentials.");
+
+      // Step 2 — upload file directly to Cloudinary (bypasses Vercel 4.5MB limit)
+      const cloudResult = await customOrdersAPI.uploadToCloudinary(
+        file,
+        sig.signature,
+        sig.timestamp,
+        sig.folder,
+        sig.cloudName,
+        sig.apiKey,
+        (pct) => setUploadProgress(pct)
       );
       setUploading(false);
+
+      if (!cloudResult.secure_url) throw new Error("File upload to Cloudinary failed.");
+
+      // Step 3 — save order to DB with the Cloudinary URL
+      const result = await customOrdersAPI.create(token, {
+        customerName:  formData.customerName,
+        customerEmail: formData.customerEmail,
+        orderDetails:  JSON.stringify(details),
+        fileName:      file.name,
+        fileType:      ext,
+        fileSizeBytes: file.size,
+        material:      formData.material,
+        color:         formData.color,
+        quantity:      parseInt(formData.quantity, 10) || 1,
+        notes:         formData.notes,
+        orderFileURL:  cloudResult.secure_url,
+      });
+
       if (result.data) {
         setCustomOrders(prev => [result.data, ...prev]);
         setShowForm(false); setFile(null);
@@ -342,6 +362,7 @@ function CustomOrders({ token, user }) {
               </div>
               <FileDropZone onFile={setFile} file={file} uploading={uploading} uploadProgress={uploadProgress} />
 
+              {/* Live price estimate — appears as soon as a file is picked */}
               {liveEstimate && (
                 <PriceEstimate estimate={liveEstimate} material={formData.material} />
               )}
@@ -396,6 +417,7 @@ function CustomOrders({ token, user }) {
                     {order.quantity > 1 && <span className="order-meta-chip">Qty: {order.quantity}</span>}
                   </div>
 
+                  {/* File row */}
                   {order.orderFileURL && (
                     <div className="order-file-row">
                       <FaFile className="order-file-icon" />
@@ -414,6 +436,7 @@ function CustomOrders({ token, user }) {
                     </div>
                   )}
 
+                  {/* Gcode stats (only shown after successful slice) */}
                   {order.gcodeStats?.printTimeMins != null && (
                     <div className="gcode-stats-row">
                       <span><strong>Print time:</strong> {Math.floor(order.gcodeStats.printTimeMins/60)}h {order.gcodeStats.printTimeMins%60}m</span>
@@ -426,6 +449,7 @@ function CustomOrders({ token, user }) {
                     </div>
                   )}
 
+                  {/* Price — confirmed takes priority, else show estimate */}
                   <PriceEstimate
                     estimate={order.estimatedCost?.low ? {
                       low:        order.estimatedCost.low,

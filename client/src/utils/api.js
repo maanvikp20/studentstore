@@ -1,10 +1,11 @@
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = (token) => ({
   'Content-Type': 'application/json',
   ...(token && { Authorization: `Bearer ${token}` })
 });
 
+// No Content-Type — browser sets multipart/form-data + boundary automatically
 const getMultipartHeaders = (token) => ({
   ...(token && { Authorization: `Bearer ${token}` })
 });
@@ -141,27 +142,23 @@ export const customOrdersAPI = {
     return response.json();
   },
 
-  create: async (token, data, modelFile = null) => {
-    const fd = new FormData();
-    Object.entries(data).forEach(([k, v]) => {
-      if (v != null) fd.append(k, Array.isArray(v) ? JSON.stringify(v) : v);
-    });
-    if (modelFile) fd.append('file', modelFile);
-    const response = await fetch(`${API_URL}/custom-orders`, {
-      method: 'POST',
-      headers: getMultipartHeaders(token),
-      body: fd
+  // Step 1 — get signed upload credentials from our server
+  getUploadSignature: async (token) => {
+    const response = await fetch(`${API_URL}/custom-orders/sign-upload`, {
+      headers: getAuthHeaders(token)
     });
     return response.json();
   },
 
-  createWithProgress: (token, data, modelFile, onProgress) =>
+  // Step 2 — upload file directly to Cloudinary (bypasses Vercel 4.5MB limit)
+  uploadToCloudinary: (file, signature, timestamp, folder, cloudName, apiKey, onProgress) =>
     new Promise((resolve, reject) => {
       const fd = new FormData();
-      Object.entries(data).forEach(([k, v]) => {
-        if (v != null) fd.append(k, Array.isArray(v) ? JSON.stringify(v) : v);
-      });
-      if (modelFile) fd.append('file', modelFile);
+      fd.append('file', file);
+      fd.append('signature', signature);
+      fd.append('timestamp', timestamp);
+      fd.append('folder', folder);
+      fd.append('api_key', apiKey);
 
       const xhr = new XMLHttpRequest();
       xhr.upload.addEventListener('progress', (e) => {
@@ -169,13 +166,22 @@ export const customOrdersAPI = {
       });
       xhr.addEventListener('load', () => {
         try { resolve(JSON.parse(xhr.responseText)); }
-        catch { reject(new Error('Invalid server response')); }
+        catch { reject(new Error('Invalid Cloudinary response')); }
       });
-      xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
-      xhr.open('POST', `${API_URL}/custom-orders`);
-      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.addEventListener('error', () => reject(new Error('Upload failed')));
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`);
       xhr.send(fd);
     }),
+
+  // Step 3 — save order to DB with the Cloudinary URL (tiny JSON, no file)
+  create: async (token, data) => {
+    const response = await fetch(`${API_URL}/custom-orders`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  },
 
   update: async (token, id, data) => {
     const response = await fetch(`${API_URL}/custom-orders/${id}`, {
@@ -194,6 +200,7 @@ export const customOrdersAPI = {
     return response.json();
   },
 
+  // Admin manually uploads a sliced .gcode file for an order
   uploadGcode: async (token, id, gcodeFile) => {
     const fd = new FormData();
     fd.append('gcode', gcodeFile);
@@ -204,8 +211,8 @@ export const customOrdersAPI = {
     });
     return response.json();
   }
-
 };
+
 
 export const testimonialsAPI = {
   getAll: async () => {

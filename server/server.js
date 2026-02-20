@@ -1,4 +1,4 @@
-require("dotenv").config();
+if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 
 const express = require("express")
 const morgan = require("morgan")
@@ -18,9 +18,6 @@ const authRouter = require("./src/routes/authRoutes")
 
 const app = express()
 
-
-
-// IMPORTANT: Middleware order matters!
 // 1. CORS first (before body parsers)
 app.use(cors({
   origin: [
@@ -31,21 +28,20 @@ app.use(cors({
 }));
 
 // 2. Body parsers (MUST be before routes)
-app.use(express.json()) // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })) // Parse URL-encoded bodies
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 // 3. Logging
 app.use(morgan("':method :url :status :res[content-length] - :response-time ms'"))
 
 // 4. Connect to database
-console.log(process.env.MONGODB_URI_JOSE)
 connectDB(process.env.MONGODB_URI_JOSE);
 
 // 5. Health Check
-app.get('/api/health', (req, res) => res.json({ok: true}));
+app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 // 6. Routes
-app.use('/api/auth', authRouter) // Auth should be first (no dependencies)
+app.use('/api/auth', authRouter)
 app.use('/api/orders', ordersRouter)
 app.use('/api/custom-orders', customOrderRouter)
 app.use('/api/inventory', inventoryRouter)
@@ -56,6 +52,6 @@ app.use('/api/users', userRouter)
 app.use(errorHandler)
 
 // Start server
-app.listen(process.env.PORT || 5000, async () => {
-    console.log(`Server is running on port ${process.env.PORT || 5000}`)
+app.listen(process.env.PORT || 5000, () => {
+  console.log(`Server is running on port ${process.env.PORT || 5000}`)
 })
