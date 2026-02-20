@@ -8,11 +8,6 @@ import { customOrdersAPI } from "../utils/api";
 const ACCEPTED_TYPES = [".stl", ".obj", ".3mf", ".step", ".stp"];
 const MAX_MB = 50;
 
-/* ── Client-side price preview ───────────────────────────────────────
-   Mirrors the server algorithm (utils/printPricing.js) so users see
-   an estimate the moment they pick a file — before submitting.
-   The server recalculates after upload, potentially with real gcode data.
-──────────────────────────────────────────────────────────────────── */
 const MAT_COST = { PLA:0.025, PETG:0.030, ABS:0.028, TPU:0.045, ASA:0.035, NYLON:0.060, RESIN:0.080 };
 const TIERS    = [
   { maxBytes: 500_000,    label:"Simple",         fee:2.00,  factor:1.0 },
@@ -38,7 +33,6 @@ function clientEstimate(fileSizeBytes, material, quantity) {
   };
 }
 
-/* ── PriceEstimate display ───────────────────────────────────────── */
 function PriceEstimate({ estimate, confirmed, material }) {
   if (!estimate && !confirmed) return null;
   return (
@@ -85,7 +79,6 @@ function PriceEstimate({ estimate, confirmed, material }) {
   );
 }
 
-/* ── File drop zone ──────────────────────────────────────────────── */
 function FileDropZone({ onFile, file, uploading, uploadProgress }) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef();
@@ -146,7 +139,6 @@ function FileDropZone({ onFile, file, uploading, uploadProgress }) {
   );
 }
 
-/* ── Slice status badge ──────────────────────────────────────────── */
 function SliceStatus({ status }) {
   if (!status) return null;
   const map = {
@@ -160,7 +152,6 @@ function SliceStatus({ status }) {
   return <span className={`slice-badge ${s.cls}`}>{s.icon} {s.text}</span>;
 }
 
-/* ── Main component ──────────────────────────────────────────────── */
 function CustomOrders({ token, user }) {
   const [customOrders,   setCustomOrders]   = useState([]);
   const [loading,        setLoading]        = useState(true);
@@ -183,7 +174,6 @@ function CustomOrders({ token, user }) {
     notes:         "",
   });
 
-  // Live estimate — updates instantly when file/material/quantity changes
   const liveEstimate = file
     ? clientEstimate(file.size, formData.material, formData.quantity)
     : null;

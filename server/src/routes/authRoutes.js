@@ -6,7 +6,7 @@ const router = express.Router();
 const { register, login } = require('../controllers/authController');
 
 // Public routes
-router.post('/register', register); // Changed from '/' to '/register' for clarity
+router.post('/register', register);
 router.post('/login', login);
 
 // Export the router

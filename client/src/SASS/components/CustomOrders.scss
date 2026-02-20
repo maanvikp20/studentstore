@@ -481,7 +481,6 @@
   .order-file-row { flex-direction: column; align-items: flex-start; }
 }
 
-/* ── Price estimate card ──────────────────────────────────────── */
 .price-estimate-card {
   background: linear-gradient(135deg, rgba(88,101,242,0.06), rgba(88,101,242,0.02));
   border: 1px solid rgba(88,101,242,0.25);
@@ -551,7 +550,6 @@
   }
 }
 
-/* ── Gcode stats row on order card ───────────────────────────── */
 .gcode-stats-row {
   display: flex;
   flex-wrap: wrap;

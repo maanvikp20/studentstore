@@ -1,3 +1,5 @@
+// This was made by some AI and copied over from a separate file, so it might be a bit rough around the edges. It provides a function to estimate 3D printing costs based on file size, material, quantity, and complexity. The pricing model is simple but takes into account various factors to give a reasonable estimate.
+
 // Material cost per gram (USD)
 const MATERIAL_COST_PER_GRAM = {
   PLA:   0.025,   // ~$25/kg spool

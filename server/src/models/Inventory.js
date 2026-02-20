@@ -9,7 +9,7 @@ const inventorySchema = new mongoose.Schema({
     required: true,
     enum: ["PLA", "PETG", "ABS", "TPU", "ASA", "NYLON", "RESIN"],
   },
-  imageURL:    { type: String, trim: true, default: "" },  // no longer required — Cloudinary handles it
+  imageURL:    { type: String, trim: true, default: "" },
   description: { type: String, default: "" },
   color:       { type: String, default: "" },
   category:    { type: String, default: "" },

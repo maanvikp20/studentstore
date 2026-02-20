@@ -1,22 +1,51 @@
 # StudentStore
 
-A full-stack 3D print store where users can browse inventory, place custom print orders with file uploads, and track their orders. Admins get a complete dashboard with user management, order tracking, automated PrusaSlicer integration, and cost estimation.
+A full-stack e-commerce platform for a campus 3D printing store. Users can browse inventory, place orders, and submit custom 3D print jobs with file uploads. Admins manage everything through a dedicated dashboard — reviewing files, slicing models in-browser, uploading G-code, and confirming prices.
 
-**Stack:** React · Express · MongoDB · Cloudinary · PrusaSlicer
+**Live demo:** [studentstore-client.vercel.app](https://studentstore-client.vercel.app)  
+**Test credentials:** `alice@example.com` / `password123` (admin) · `bob@example.com` / `password123` (user)
+
+---
+
+## Table of Contents
+
+- [Stack](#stack)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Seeding Test Data](#seeding-test-data)
+- [Deployment](#deployment)
+- [API Reference](#api-reference)
+- [Custom Order Workflow](#custom-order-workflow)
+- [Cost Estimation](#cost-estimation)
+- [Known Limitations](#known-limitations)
+
+---
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, React Router v6, SCSS |
+| Backend | Node.js, Express 4 |
+| Database | MongoDB + Mongoose |
+| Auth | JWT + bcrypt |
+| File Storage | Cloudinary |
+| Deployment | Vercel (client + server as separate projects) |
 
 ---
 
 ## Features
 
-- JWT authentication with role-based access (user / admin)
-- Inventory browsing with search, filter by material, sort by price, stock indicators
-- Cart and checkout flow
-- Custom 3D print orders — upload STL, OBJ, 3MF, STEP files
-- Server-side Cloudinary uploads (no credentials exposed to the browser)
-- Automatic PrusaSlicer slicing for STL and 3MF files
-- Gcode stats extraction (print time, filament used, layer count)
-- Live client-side cost estimate that updates as you pick a file, material, and quantity
-- Admin dashboard — users, orders, custom orders (expandable cards with pricing breakdown + confirmed price), inventory CRUD with image uploads
+- JWT authentication with user and admin roles
+- Inventory with search, material filter, stock status indicators, and price sorting
+- Shopping cart and checkout flow
+- Custom 3D print orders — direct-to-Cloudinary file uploads bypassing Vercel's serverless size limit
+- Live client-side cost estimation (file size × material × quantity) before submitting
+- Full admin dashboard with tabs for users, orders, custom orders, and inventory
+- In-browser slicing via [Kiri:Moto](https://grid.space/kiri) — no install, no account required
+- G-code upload per order and admin-confirmed pricing
+- Cloudinary image uploads for inventory items
 
 ---
 
@@ -35,13 +64,13 @@ studentstore/
 │       │   └── Profile.scss
 │       ├── pages/
 │       │   ├── components/
-│       │   │   ├── Admin.jsx
+│       │   │   ├── Admin.jsx        # Full admin dashboard
 │       │   │   ├── Admin.scss
 │       │   │   ├── Cart.jsx
-│       │   │   ├── CustomOrders.jsx
+│       │   │   ├── CustomOrders.jsx # Customer-facing custom order component
 │       │   │   ├── Footer.jsx
 │       │   │   └── Navbar.jsx
-│       │   ├── CustomOrders.jsx
+│       │   ├── CustomOrders.jsx     # Custom orders page
 │       │   ├── Inventory.jsx
 │       │   ├── ItemDetail.jsx
 │       │   ├── Login.jsx
@@ -53,25 +82,24 @@ studentstore/
 │       │   ├── Home.scss
 │       │   └── Inventory.scss
 │       ├── utils/
-│       │   └── api.js               # All fetch/XHR calls — single source of truth
+│       │   └── api.js               # All API calls — single source of truth
 │       ├── App.jsx
 │       └── index.js
 │
 └── server/
     ├── src/
     │   ├── config/
-    │   │   └── db.js                # Mongoose connection
+    │   │   └── db.js                # Mongoose connection with cold-start caching
     │   ├── controllers/
-    │   │   ├── adminMiddle.js
     │   │   ├── authController.js
     │   │   ├── customOrderController.js
     │   │   ├── inventoryController.js
     │   │   ├── orderController.js
     │   │   └── testimonialController.js
     │   ├── middleware/
-    │   │   ├── auth.js
+    │   │   ├── auth.js              # JWT verify + requireAdmin guard
     │   │   ├── errorhandler.js
-    │   │   └── upload.js            # Multer + Cloudinary — memory storage
+    │   │   └── upload.js            # Multer memory storage + Cloudinary stream
     │   ├── models/
     │   │   ├── CustomOrders.js
     │   │   ├── Inventory.js
@@ -83,28 +111,27 @@ studentstore/
     │   │   ├── customOrdersRoutes.js
     │   │   ├── inventoryRoutes.js
     │   │   ├── orderRoutes.js
-    │   │   └── testimonialRoutes.js
+    │   │   ├── testimonialRoutes.js
+    │   │   └── userRoutes.js
     │   └── utils/
-    │       └── printPricing.js      # Cost-estimation algorithm
-    ├── .env
+    │       └── printPricing.js      # Cost estimation algorithm
+    ├── .env.example                 # Copy to .env and fill in your values
     ├── dropindexes.js               # One-time index cleanup utility
     ├── package.json
-    ├── seed-data.js                 # Test data seeder
-    └── server.js                    # Entry point
+    ├── seed-data.js                 # Populates DB with test data
+    ├── server.js                    # Entry point
+    └── vercel.json
 ```
 
 ---
 
-## Prerequisites
+## Getting Started
+
+### Prerequisites
 
 - Node.js v18+
-- MongoDB Atlas account (or local MongoDB)
-- Cloudinary account (free tier is fine)
-- PrusaSlicer installed on the server *(optional — slicing falls back to `pending` without it)*
-
----
-
-## Setup
+- A [MongoDB Atlas](https://www.mongodb.com/atlas) account (free tier works)
+- A [Cloudinary](https://cloudinary.com) account (free tier works)
 
 ### 1. Clone the repo
 
@@ -118,82 +145,72 @@ cd studentstore
 ```bash
 cd server
 npm install
+cp .env.example .env
 ```
 
-Create `server/.env` and fill in your values:
+Open `server/.env` and fill in your values:
 
 ```env
 PORT=5000
-MONGODB_URI_JOSE=mongodb+srv://<user>:<pass>@cluster.mongodb.net/StudentStore
+NODE_ENV=development
+
+MONGODB_URI_JOSE=mongodb+srv://<user>:<password>@cluster.mongodb.net/StudentStore
 
 JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRES_IN=7d
 
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-
-# Optional — slicing falls back to "pending" if not set
-PRUSA_SLICER_PATH=/usr/bin/prusa-slicer
-PRUSA_CONFIG_PATH=/path/to/config.ini
 ```
 
-> **Where to find Cloudinary credentials:** log in at cloudinary.com → Dashboard. Your Cloud Name, API Key, and API Secret are all shown on the main page.
+> **Where to find Cloudinary credentials:** log in at cloudinary.com → Dashboard. Your Cloud Name, API Key, and API Secret are on the main page.
 
 ### 3. Set up the client
 
 ```bash
 cd ../client
 npm install
+cp .env.example .env
 ```
 
----
+The default `client/.env` points to `http://localhost:5000/api` — no changes needed for local development.
 
-## Running Locally
+### 4. Seed the database
+
+```bash
+cd ../server
+node dropindexes.js   # clears stale indexes — only needed once or after schema changes
+node seed-data.js     # populates users, inventory, orders, custom orders, testimonials
+```
+
+### 5. Run
 
 Open two terminals:
 
 ```bash
-# Terminal 1 — server
-cd server
-npm run dev
+# Terminal 1 — server (http://localhost:5000)
+cd server && npm run dev
 
-# Terminal 2 — client
-cd client
-npm run dev
+# Terminal 2 — client (http://localhost:3000)
+cd client && npm start
 ```
-
-- Server: `http://localhost:5000`
-- Client: `http://localhost:5173`
-
-> `api.js` points to `http://localhost:5000/api` by default. Update this constant before deploying.
 
 ---
 
 ## Seeding Test Data
 
-From the `server/` directory:
+`seed-data.js` creates the following:
 
-```bash
-# Only needed once, or after schema changes — clears stale unique indexes
-node dropindexes.js
+| Collection | Count | Notes |
+|---|---|---|
+| Users | 5 | 1 admin, 4 regular users |
+| Inventory | 7 | Mix of in-stock, low-stock, and out-of-stock |
+| Orders | 5 | All status variants |
+| Custom Orders | 5 | All slice statuses represented |
+| Testimonials | 5 | |
 
-# Populate the database with test users, inventory, orders, and custom orders
-node seed-data.js
-```
-
-This creates:
-
-- **5 users** (1 admin, 4 regular users)
-- **7 inventory items** (mix of in-stock, low-stock, and out-of-stock)
-- **5 orders** (all status variants)
-- **5 custom orders** (all slice statuses represented — done, error, pending, unsupported — one with a confirmed price already set)
-- **5 testimonials**
-
----
-
-## Test Credentials
-
-All seeded users share the password `password123`.
+**All seeded accounts use the password `password123`:**
 
 | Role | Email |
 |---|---|
@@ -205,67 +222,144 @@ All seeded users share the password `password123`.
 
 ---
 
-## Testing the App
+## Deployment
 
-A full manual QA checklist is in [`TESTING.md`](./TESTING.md). Quick summary of what to hit:
+The client and server are deployed as two separate Vercel projects.
 
-### Auth
-Register a new account → log in → update profile → change password.
+### Server
 
-### Shop
-Browse `/inventory` — try search, filter by material, filter by stock status, sort by price. Click through to an item detail page, add to cart, and checkout.
+```bash
+cd server
+npx vercel --prod
+```
 
-### Custom Orders
-Submit a custom order with a `.stl` file. Watch the live price estimate update as you change material and quantity. After submitting, check the order card shows slice status, gcode stats, and estimated cost range.
+Add these in the Vercel dashboard under **Settings → Environment Variables**:
 
-### Admin (log in as alice@example.com)
-- **Overview** — check stat cards match seeded counts, verify low-stock panel shows Raspberry Pi Case (3) and Earphone Holder (0)
-- **Users** — promote/demote a user, try deleting your own account (should be blocked)
-- **Orders** — change order status via dropdown
-- **Custom Orders** — expand a card, check Slicer Output panel, set a confirmed price
-- **Inventory** — add a new item with an uploaded image, edit an existing item, delete an item
+```
+MONGODB_URI_JOSE
+JWT_SECRET
+JWT_EXPIRES_IN
+NODE_ENV=production
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
+```
 
-### Admin cart guards
-Log in as alice and visit `/inventory` and any item detail page — no cart buttons should appear anywhere.
+### Client
+
+```bash
+cd client
+npx vercel --prod
+```
+
+Add this in the Vercel dashboard:
+
+```
+REACT_APP_API_URL=https://your-server.vercel.app/api
+```
+
+> After adding or changing environment variables, always redeploy with `npx vercel --prod` for them to take effect.
 
 ---
 
-## API Overview
+## API Reference
 
-All protected routes require `Authorization: Bearer <token>` in the request header.
+All protected routes require `Authorization: Bearer <token>`.
 
-| Resource | Base route | Notes |
+| Resource | Base Route | Access |
 |---|---|---|
-| Auth | `/api/auth` | Public: register, login. Protected: profile, change-password |
-| Inventory | `/api/inventory` | GET is public. POST/PUT/DELETE require auth |
+| Auth | `/api/auth` | `register` + `login` public · profile/password protected |
+| Inventory | `/api/inventory` | GET public · mutations protected |
 | Orders | `/api/orders` | Auth required |
-| Custom Orders | `/api/custom-orders` | Auth required — POST accepts `multipart/form-data` |
+| Custom Orders | `/api/custom-orders` | Auth required |
 | Users | `/api/users` | Admin only |
 | Testimonials | `/api/testimonials` | Auth required |
 
+### Custom order endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/custom-orders/sign-upload` | Returns signed Cloudinary upload credentials |
+| GET | `/api/custom-orders` | Own orders (user) or all orders (admin) |
+| POST | `/api/custom-orders` | Create order — JSON body with Cloudinary URL |
+| PUT | `/api/custom-orders/:id` | Update fields or set confirmed price |
+| DELETE | `/api/custom-orders/:id` | Delete order |
+| POST | `/api/custom-orders/:id/gcode` | Admin uploads a `.gcode` file |
+
+### File upload flow
+
+3D files bypass Vercel's 4.5MB serverless body limit via direct Cloudinary upload:
+
+```
+1. GET  /api/custom-orders/sign-upload
+        → server generates and returns a signed upload signature
+
+2. POST https://api.cloudinary.com/v1_1/<cloud>/raw/upload
+        → browser uploads file directly to Cloudinary
+        → server is not involved — no size limit
+
+3. POST /api/custom-orders
+        → browser sends order form data + Cloudinary URL as JSON
+        → server saves the order to MongoDB
+```
+
 ---
 
-## File Upload Flow
+## Custom Order Workflow
 
-All uploads go through Express — the browser never sends anything directly to Cloudinary.
+### Customer
 
-```
-Inventory image:
-  Browser FormData → multer (memory buffer) → Cloudinary image → URL saved to DB
+1. Go to **Custom Orders** → click **New Custom Order**
+2. Fill in contact info, material, color, quantity, and order details
+3. Attach a `.stl`, `.obj`, `.3mf`, `.step`, or `.stp` file (max 10MB)
+4. A live price estimate appears and updates as you change file, material, and quantity
+5. Submit — the file uploads directly to Cloudinary with a real-time progress bar
 
-3D model file:
-  Browser FormData → multer (memory buffer) → Cloudinary raw
-    → PrusaSlicer CLI (tmp file, auto-deleted) → .gcode
-    → Cloudinary raw → both URLs + gcodeStats saved to DB
-```
+### Admin
 
-**Accepted 3D file types:** `.stl` `.obj` `.3mf` `.step` `.stp` — max 50 MB  
-**Accepted image types:** any `image/*` — max 10 MB
+1. Open the **Custom Orders** tab in `/admin`
+2. Expand an order card to see the file, cost breakdown, and estimate
+3. Click **✂ Slice in Browser** → opens [Kiri:Moto](https://grid.space/kiri) with the file preloaded (free, no login)
+4. Slice the model and export the `.gcode`
+5. Upload the `.gcode` back via the card — status automatically flips to **done**
+6. Enter a confirmed price and click **Confirm** — the customer sees the final price on their order
+
+---
+
+## Cost Estimation
+
+Calculated server-side in `utils/printPricing.js`. File size is used as a proxy for geometry complexity — a deliberate zero-dependency tradeoff.
+
+| Tier | File Size | Multiplier | Base Fee |
+|---|---|---|---|
+| Simple | < 500 KB | 1.0× | $2.00 |
+| Moderate | 500 KB – 2 MB | 1.3× | $5.00 |
+| Complex | 2 MB – 10 MB | 1.6× | $12.00 |
+| Highly Complex | > 10 MB | 2.0× | $22.00 |
+
+Material cost per gram: PLA $0.025 → Resin $0.080. Bulk discounts at 5, 10, and 20+ units. Estimates carry ±20% uncertainty — admin always confirms the final price.
 
 ---
 
 ## Known Limitations
 
-- **PrusaSlicer** — must be installed on the server with `PRUSA_SLICER_PATH` set. Without it, STL/3MF orders default to `sliceStatus = pending` and no gcode is generated.
-- **API URL** — hard-coded to `localhost:5000` in `api.js`. Must be updated before deploying to any other environment.
-- **Cost estimates** — carry ±20% uncertainty by design (file size is used as a geometry proxy). Always confirm the final price via the admin dashboard confirmed price field.
+- **Cloudinary free tier** caps uploads at 10MB per file
+- **PrusaSlicer** cannot run on Vercel serverless — slicing is done manually via the Kiri:Moto browser link in the admin dashboard
+- **Vercel serverless** has a 4.5MB request body limit — worked around by uploading 3D files directly from the browser to Cloudinary
+- **`REACT_APP_API_URL`** must be updated whenever the server URL changes
+
+---
+
+## Contributing
+
+1. Fork the repo
+2. Create a feature branch — `git checkout -b feature/your-feature`
+3. Commit your changes — `git commit -m 'add your feature'`
+4. Push to the branch — `git push origin feature/your-feature`
+5. Open a pull request
+
+---
+
+## License
+
+MIT

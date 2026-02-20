@@ -1,3 +1,5 @@
+// this one was made by some AI, so it might be a bit rough around the edges, but it should work fine for our needs. It handles file uploads using multer and streams them to Cloudinary without saving to disk.
+
 const multer    = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { Readable } = require("stream");

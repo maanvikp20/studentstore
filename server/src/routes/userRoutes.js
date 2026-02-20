@@ -15,7 +15,7 @@ router.use(requireAuth);
 
 router.get("/", getAllUsers);
 router.get("/:id", getUserById);
-router.post("/", createUser); // Consider removing - use /api/auth/register instead
+router.post("/", createUser); 
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
 

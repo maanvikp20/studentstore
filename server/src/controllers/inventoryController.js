@@ -25,7 +25,6 @@ const createInventory = async (req, res, next) => {
   try {
     const fields = { ...req.body };
 
-    // If an image file was uploaded, stream it to Cloudinary
     if (req.file) {
       fields.imageURL = await streamToCloudinary(req.file.buffer, {
         folder:         "inventory",

@@ -226,3 +226,5 @@ async function seedDatabase() {
 }
 
 seedDatabase();
+
+// NOTE: The seeded data was made by AI only for filling out more accounts, everything else was made by us.

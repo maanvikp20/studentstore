@@ -106,14 +106,12 @@ async function createCustomOrder(req, res, next) {
       fileName = req.file.originalname;
       fileType = fileName.split(".").pop().toLowerCase();
 
-      // Upload 3D model to Cloudinary
       orderFileURL = await streamToCloudinary(req.file.buffer, {
         folder: "3d-files",
         resource_type: "raw",
         public_id: `${Date.now()}-${fileName}`,
       });
 
-      // Recalculate with correct fileType now
       estimatedCost = calculatePrintCost({ fileSizeBytes: req.file.size, material: mat, quantity: qty, fileType });
 
       const canSlice   = ["stl", "3mf"].includes(fileType);
@@ -126,7 +124,6 @@ async function createCustomOrder(req, res, next) {
             const { gcodeBuffer, gcodeHeader } = await sliceWithPrusa(req.file.buffer, fileName);
             gcodeStats = parseGcodeStats(gcodeHeader);
 
-            // Upgrade estimate with real sliced filament weight if available
             if (gcodeStats.filamentUsedG) {
               const matCostPerG = { PLA:0.025,PETG:0.030,ABS:0.028,TPU:0.045,ASA:0.035,NYLON:0.060,RESIN:0.080 }[mat] ?? 0.025;
               const realMatCost = gcodeStats.filamentUsedG * matCostPerG * qty;
@@ -152,7 +149,7 @@ async function createCustomOrder(req, res, next) {
             sliceStatus = "error";
           }
         } else {
-          sliceStatus = "pending"; // Slicer not installed — admin will process manually
+          sliceStatus = "pending";
         }
       }
     }
