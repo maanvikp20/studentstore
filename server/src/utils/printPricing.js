@@ -1,23 +1,4 @@
-/**
- * utils/printPricing.js
- *
- * Estimates 3D print cost from available metadata.
- *
- * Because we can't parse STL geometry server-side without a heavy library,
- * we use FILE SIZE as a proxy for model complexity/volume — larger files
- * generally mean more geometry/faces = more filament. This is a deliberate
- * engineering tradeoff: accurate enough for a quote range, zero dependencies.
- *
- * Pricing model:
- *   1. Material cost  — base $/g × estimated grams (derived from file size)
- *   2. Labor cost     — flat base + per-unit handling
- *   3. Complexity fee — scales with file size tiers (simple/medium/complex)
- *   4. Quantity       — applied as multiplier with small bulk discount
- *
- * Returns a low/high range with per-component breakdown.
- */
-
-// Material cost per gram (USD). Sourced from average retail filament prices.
+// Material cost per gram (USD)
 const MATERIAL_COST_PER_GRAM = {
   PLA:   0.025,   // ~$25/kg spool
   PETG:  0.030,
@@ -28,8 +9,6 @@ const MATERIAL_COST_PER_GRAM = {
   RESIN: 0.080,   // resin priced by ml, roughly equivalent
 };
 
-// Complexity tiers based on file size (bytes)
-// STL file size correlates strongly with triangle count → geometry complexity
 const COMPLEXITY = [
   { maxBytes: 500_000,         label: "Simple",   factor: 1.0, fee: 2.00  }, // <500KB
   { maxBytes: 2_000_000,       label: "Moderate", factor: 1.3, fee: 5.00  }, // 500KB–2MB
@@ -37,11 +16,9 @@ const COMPLEXITY = [
   { maxBytes: Infinity,        label: "Highly Complex", factor: 2.0, fee: 22.00 }, // >10MB
 ];
 
-// Base labor: setup, post-processing, QC
 const BASE_LABOR = 4.00;        // per order
 const PER_UNIT_LABOR = 1.50;    // per copy printed
 
-// Minimum order floor
 const MINIMUM_PRICE = 8.00;
 
 // Bulk discount thresholds
@@ -52,11 +29,6 @@ const bulkDiscount = (qty) => {
   return 0;
 };
 
-/**
- * Estimate grams of filament from file size.
- * Rough calibration: a typical 1MB STL prints at roughly 15–40g depending on infill.
- * We use 25g per MB as a midpoint, then apply the complexity factor.
- */
 const estimateGrams = (fileSizeBytes, complexityFactor) => {
   const mb = fileSizeBytes / 1_000_000;
   const base = Math.max(mb * 25, 5); // minimum 5g for tiny files
@@ -76,17 +48,13 @@ const estimateGrams = (fileSizeBytes, complexityFactor) => {
 function calculatePrintCost({ fileSizeBytes = 0, material = "PLA", quantity = 1, fileType = "stl" }) {
   const matCostPerG = MATERIAL_COST_PER_GRAM[material] ?? MATERIAL_COST_PER_GRAM.PLA;
 
-  // Determine complexity tier
   const tier = COMPLEXITY.find(t => fileSizeBytes <= t.maxBytes) || COMPLEXITY.at(-1);
 
-  // Estimate grams (single copy)
   const estimatedGrams = estimateGrams(fileSizeBytes, tier.factor);
 
-  // Per-copy costs
   const materialCostPerCopy = estimatedGrams * matCostPerG;
   const laborCostPerCopy    = PER_UNIT_LABOR;
 
-  // Order-level costs
   const complexityCost = tier.fee;
   const laborCostBase  = BASE_LABOR;
 
@@ -131,3 +99,5 @@ function calculatePrintCost({ fileSizeBytes = 0, material = "PLA", quantity = 1,
 }
 
 module.exports = { calculatePrintCost };
+
+//

@@ -5,7 +5,6 @@ const getAuthHeaders = (token) => ({
   ...(token && { Authorization: `Bearer ${token}` })
 });
 
-// No Content-Type — browser sets multipart/form-data + boundary automatically
 const getMultipartHeaders = (token) => ({
   ...(token && { Authorization: `Bearer ${token}` })
 });
