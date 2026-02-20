@@ -16,8 +16,6 @@ const STATUS_COLORS = {
   Completed: "badge-success", Cancelled: "badge-danger",
 };
 
-/* ── Shared small components ─────────────────────────────────────── */
-
 function StatCard({ icon, label, value, sub }) {
   return (
     <div className="stat-card">
@@ -71,13 +69,14 @@ function ImagePicker({ value, onChange, label = "Product Image" }) {
   );
 }
 
-/* ── Admin Custom Order Card (expandable) ────────────────────────── */
-
-function AdminCustomOrderCard({ order: o, savingId, onSliceStatus, onDelete, onUpdate, token }) {
-  const [expanded,     setExpanded]     = useState(false);
-  const [confirmPrice, setConfirmPrice] = useState(o.confirmedPrice ?? "");
-  const [savingPrice,  setSavingPrice]  = useState(false);
-  const [savingStatus, setSavingStatus] = useState(false);
+function AdminCustomOrderCard({ order: o, onDelete, onUpdate, token }) {
+  const [expanded,       setExpanded]       = useState(false);
+  const [confirmPrice,   setConfirmPrice]   = useState(o.confirmedPrice ?? "");
+  const [savingPrice,    setSavingPrice]    = useState(false);
+  const [savingStatus,   setSavingStatus]   = useState(false);
+  const [gcodeFile,      setGcodeFile]      = useState(null);
+  const [uploadingGcode, setUploadingGcode] = useState(false);
+  const gcodeInputRef = useRef();
 
   const handleConfirmPrice = async () => {
     if (!confirmPrice) return;
@@ -98,14 +97,27 @@ function AdminCustomOrderCard({ order: o, savingId, onSliceStatus, onDelete, onU
     finally { setSavingStatus(false); }
   };
 
-  const handleSliceStatus = (sliceStatus) => onSliceStatus(o._id, sliceStatus);
+  const handleGcodeUpload = async () => {
+    if (!gcodeFile) return;
+    setUploadingGcode(true);
+    try {
+      const result = await customOrdersAPI.uploadGcode(token, o._id, gcodeFile);
+      if (result.data) {
+        onUpdate(result.data);
+        setGcodeFile(null);
+        if (gcodeInputRef.current) gcodeInputRef.current.value = "";
+      } else {
+        alert("Gcode upload failed.");
+      }
+    } catch { alert("Gcode upload failed."); }
+    finally { setUploadingGcode(false); }
+  };
 
   const est   = o.estimatedCost;
   const stats = o.gcodeStats;
 
   return (
     <div className={`admin-co-card ${expanded ? "expanded" : ""}`}>
-      {/* Header row — always visible, click to expand */}
       <div className="admin-co-card-header" onClick={() => setExpanded(p => !p)}>
         <div className="admin-co-card-left">
           <span className="admin-co-id">#{o._id.slice(-6).toUpperCase()}</span>
@@ -143,13 +155,11 @@ function AdminCustomOrderCard({ order: o, savingId, onSliceStatus, onDelete, onU
         </div>
       </div>
 
-      {/* Expanded body */}
       {expanded && (
         <div className="admin-co-card-body">
 
-          {/* File + Slicing */}
           <div className="admin-co-section">
-            <div className="admin-co-section-title">3D File & Slicing</div>
+            <div className="admin-co-section-title">3D File</div>
             <div className="admin-co-file-row">
               {o.orderFileURL
                 ? <a href={o.orderFileURL} target="_blank" rel="noopener noreferrer" className="file-link">
@@ -157,26 +167,41 @@ function AdminCustomOrderCard({ order: o, savingId, onSliceStatus, onDelete, onU
                   </a>
                 : <span className="td-muted">No file attached</span>
               }
-              {o.gcodeURL && (
-                <a href={o.gcodeURL} download className="btn btn-small btn-secondary gcode-btn">
-                  <FaDownload /> Download G-code
-                </a>
-              )}
-            </div>
-            <div className="admin-co-slice-row">
-              <label>Slice status:</label>
-              <select
-                className={`status-select status-slice-${o.sliceStatus || "pending"}`}
-                value={o.sliceStatus || "pending"}
-                onChange={e => handleSliceStatus(e.target.value)}
-                disabled={savingId === o._id}
-              >
-                {SLICE_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
             </div>
           </div>
 
-          {/* Gcode stats — only shown when slicer produced output */}
+          <div className="admin-co-section">
+            <div className="admin-co-section-title">G-code</div>
+            {o.gcodeURL ? (
+              <div className="admin-co-file-row">
+                <a href={o.gcodeURL} download className="btn btn-small btn-secondary gcode-btn">
+                  <FaDownload /> Download G-code
+                </a>
+                <span className="td-muted td-small">Replace:</span>
+              </div>
+            ) : (
+              <p className="td-muted td-small">No G-code yet. Slice the file in PrusaSlicer locally, then upload the .gcode below.</p>
+            )}
+            <div className="admin-co-gcode-upload">
+              <input
+                ref={gcodeInputRef}
+                type="file"
+                accept=".gcode"
+                onChange={e => setGcodeFile(e.target.files[0] || null)}
+                className="gcode-file-input"
+              />
+              {gcodeFile && (
+                <button
+                  className="btn btn-primary btn-small"
+                  onClick={handleGcodeUpload}
+                  disabled={uploadingGcode}
+                >
+                  {uploadingGcode ? "Uploading…" : <><FaDownload /> Upload G-code</>}
+                </button>
+              )}
+            </div>
+          </div>
+
           {stats && (stats.printTimeMins || stats.filamentUsedG || stats.layerCount) && (
             <div className="admin-co-section">
               <div className="admin-co-section-title">Slicer Output</div>
@@ -220,39 +245,22 @@ function AdminCustomOrderCard({ order: o, savingId, onSliceStatus, onDelete, onU
                   <span className="admin-co-price-label">Algorithm estimate</span>
                   <span className="admin-co-price-val">${est.low} – ${est.high}</span>
                 </div>
-
                 {est.breakdown && (
                   <div className="admin-co-breakdown">
-                    <div className="breakdown-row">
-                      <span>Material cost</span>
-                      <span>${est.breakdown.materialCost}</span>
-                    </div>
-                    <div className="breakdown-row">
-                      <span>Labor</span>
-                      <span>${est.breakdown.laborCost}</span>
-                    </div>
-                    <div className="breakdown-row">
-                      <span>Complexity ({est.breakdown.complexityTier})</span>
-                      <span>${est.breakdown.complexityCost}</span>
-                    </div>
+                    <div className="breakdown-row"><span>Material cost</span><span>${est.breakdown.materialCost}</span></div>
+                    <div className="breakdown-row"><span>Labor</span><span>${est.breakdown.laborCost}</span></div>
+                    <div className="breakdown-row"><span>Complexity ({est.breakdown.complexityTier})</span><span>${est.breakdown.complexityCost}</span></div>
                     {est.breakdown.discountPct > 0 && (
                       <div className="breakdown-row breakdown-discount">
-                        <span>Bulk discount ({est.breakdown.discountPct}%)</span>
-                        <span>applied</span>
+                        <span>Bulk discount ({est.breakdown.discountPct}%)</span><span>applied</span>
                       </div>
                     )}
                     {est.breakdown.estimatedGrams && (
-                      <div className="breakdown-row">
-                        <span>Est. filament</span>
-                        <span>{est.breakdown.estimatedGrams}g</span>
-                      </div>
+                      <div className="breakdown-row"><span>Est. filament</span><span>{est.breakdown.estimatedGrams}g</span></div>
                     )}
                   </div>
                 )}
-
                 {est.disclaimer && <p className="admin-co-disclaimer">{est.disclaimer}</p>}
-
-                {/* Confirm price input */}
                 <div className="admin-co-confirm-price">
                   <label>Set confirmed price (USD)</label>
                   <div className="confirm-price-row">
@@ -273,16 +281,13 @@ function AdminCustomOrderCard({ order: o, savingId, onSliceStatus, onDelete, onU
                     </button>
                   </div>
                   {o.confirmedPrice && (
-                    <p className="confirmed-price-note">
-                      Currently set: ${parseFloat(o.confirmedPrice).toFixed(2)}
-                    </p>
+                    <p className="confirmed-price-note">Currently set: ${parseFloat(o.confirmedPrice).toFixed(2)}</p>
                   )}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Order details */}
           {Array.isArray(o.orderDetails) && o.orderDetails.length > 0 && (
             <div className="admin-co-section">
               <div className="admin-co-section-title">Order Details</div>
@@ -306,8 +311,6 @@ function AdminCustomOrderCard({ order: o, savingId, onSliceStatus, onDelete, onU
     </div>
   );
 }
-
-/* ── Main Admin component ────────────────────────────────────────── */
 
 function Admin({ token, user }) {
   const [activeTab, setActiveTab] = useState("overview");
@@ -628,8 +631,6 @@ function Admin({ token, user }) {
                   <AdminCustomOrderCard
                     key={o._id}
                     order={o}
-                    savingId={savingId}
-                    onSliceStatus={updateCustomStatus}
                     onDelete={deleteCustom}
                     onUpdate={updateCustomOrder}
                     token={token}

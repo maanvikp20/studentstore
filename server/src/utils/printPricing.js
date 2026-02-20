@@ -72,7 +72,6 @@ function calculatePrintCost({ fileSizeBytes = 0, material = "PLA", quantity = 1,
   const low  = Math.max(total * 0.82, MINIMUM_PRICE);
   const high = total * 1.22;
 
-  // Build breakdown (single-copy reference values for display)
   const breakdown = {
     materialCost:   parseFloat((materialCostPerCopy * quantity).toFixed(2)),
     laborCost:      parseFloat((laborCostBase + laborCostPerCopy * quantity).toFixed(2)),
@@ -99,5 +98,3 @@ function calculatePrintCost({ fileSizeBytes = 0, material = "PLA", quantity = 1,
 }
 
 module.exports = { calculatePrintCost };
-
-//

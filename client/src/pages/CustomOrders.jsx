@@ -6,7 +6,7 @@ import {
 import { customOrdersAPI } from "../utils/api";
 
 const ACCEPTED_TYPES = [".stl", ".obj", ".3mf", ".step", ".stp"];
-const MAX_MB = 50;
+const MAX_MB = 10;
 
 /* ── Client-side price preview ───────────────────────────────────────
    Mirrors the server algorithm (utils/printPricing.js) so users see
@@ -146,7 +146,6 @@ function FileDropZone({ onFile, file, uploading, uploadProgress }) {
   );
 }
 
-/* ── Slice status badge ──────────────────────────────────────────── */
 function SliceStatus({ status }) {
   if (!status) return null;
   const map = {
@@ -160,7 +159,6 @@ function SliceStatus({ status }) {
   return <span className={`slice-badge ${s.cls}`}>{s.icon} {s.text}</span>;
 }
 
-/* ── Main component ──────────────────────────────────────────────── */
 function CustomOrders({ token, user }) {
   const [customOrders,   setCustomOrders]   = useState([]);
   const [loading,        setLoading]        = useState(true);
@@ -183,7 +181,6 @@ function CustomOrders({ token, user }) {
     notes:         "",
   });
 
-  // Live estimate — updates instantly when file/material/quantity changes
   const liveEstimate = file
     ? clientEstimate(file.size, formData.material, formData.quantity)
     : null;
@@ -345,7 +342,6 @@ function CustomOrders({ token, user }) {
               </div>
               <FileDropZone onFile={setFile} file={file} uploading={uploading} uploadProgress={uploadProgress} />
 
-              {/* Live price estimate — appears as soon as a file is picked */}
               {liveEstimate && (
                 <PriceEstimate estimate={liveEstimate} material={formData.material} />
               )}
@@ -400,7 +396,6 @@ function CustomOrders({ token, user }) {
                     {order.quantity > 1 && <span className="order-meta-chip">Qty: {order.quantity}</span>}
                   </div>
 
-                  {/* File row */}
                   {order.orderFileURL && (
                     <div className="order-file-row">
                       <FaFile className="order-file-icon" />
@@ -419,7 +414,6 @@ function CustomOrders({ token, user }) {
                     </div>
                   )}
 
-                  {/* Gcode stats (only shown after successful slice) */}
                   {order.gcodeStats?.printTimeMins != null && (
                     <div className="gcode-stats-row">
                       <span><strong>Print time:</strong> {Math.floor(order.gcodeStats.printTimeMins/60)}h {order.gcodeStats.printTimeMins%60}m</span>
@@ -432,7 +426,6 @@ function CustomOrders({ token, user }) {
                     </div>
                   )}
 
-                  {/* Price — confirmed takes priority, else show estimate */}
                   <PriceEstimate
                     estimate={order.estimatedCost?.low ? {
                       low:        order.estimatedCost.low,

@@ -155,7 +155,6 @@ export const customOrdersAPI = {
     return response.json();
   },
 
-  // XHR-based create with upload progress tracking
   createWithProgress: (token, data, modelFile, onProgress) =>
     new Promise((resolve, reject) => {
       const fd = new FormData();
@@ -193,7 +192,19 @@ export const customOrdersAPI = {
       headers: getAuthHeaders(token)
     });
     return response.json();
+  },
+
+  uploadGcode: async (token, id, gcodeFile) => {
+    const fd = new FormData();
+    fd.append('gcode', gcodeFile);
+    const response = await fetch(`${API_URL}/custom-orders/${id}/gcode`, {
+      method: 'POST',
+      headers: getMultipartHeaders(token),
+      body: fd
+    });
+    return response.json();
   }
+
 };
 
 export const testimonialsAPI = {
