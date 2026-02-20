@@ -16,6 +16,8 @@ const STATUS_COLORS = {
   Completed: "badge-success", Cancelled: "badge-danger",
 };
 
+/* ── Shared small components ─────────────────────────────────────── */
+
 function StatCard({ icon, label, value, sub }) {
   return (
     <div className="stat-card">
@@ -69,6 +71,8 @@ function ImagePicker({ value, onChange, label = "Product Image" }) {
   );
 }
 
+/* ── Admin Custom Order Card (expandable) ────────────────────────── */
+
 function AdminCustomOrderCard({ order: o, onDelete, onUpdate, token }) {
   const [expanded,       setExpanded]       = useState(false);
   const [confirmPrice,   setConfirmPrice]   = useState(o.confirmedPrice ?? "");
@@ -118,6 +122,7 @@ function AdminCustomOrderCard({ order: o, onDelete, onUpdate, token }) {
 
   return (
     <div className={`admin-co-card ${expanded ? "expanded" : ""}`}>
+      {/* Header — always visible, click to expand */}
       <div className="admin-co-card-header" onClick={() => setExpanded(p => !p)}>
         <div className="admin-co-card-left">
           <span className="admin-co-id">#{o._id.slice(-6).toUpperCase()}</span>
@@ -155,21 +160,38 @@ function AdminCustomOrderCard({ order: o, onDelete, onUpdate, token }) {
         </div>
       </div>
 
+      {/* Expanded body */}
       {expanded && (
         <div className="admin-co-card-body">
 
+          {/* 3D File */}
           <div className="admin-co-section">
             <div className="admin-co-section-title">3D File</div>
             <div className="admin-co-file-row">
               {o.orderFileURL
-                ? <a href={o.orderFileURL} target="_blank" rel="noopener noreferrer" className="file-link">
-                    {o.fileName || "View 3D File ↗"}
-                  </a>
+                ? <>
+                    <a href={o.orderFileURL} target="_blank" rel="noopener noreferrer" className="file-link">
+                      {o.fileName || "View 3D File ↗"}
+                    </a>
+                    <a
+                      href={`https://grid.space/kiri/?source=${encodeURIComponent(o.orderFileURL)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-small btn-slicer"
+                      title="Open in Kiri:Moto — free browser slicer, no login needed"
+                    >
+                      ✂ Slice in Browser
+                    </a>
+                  </>
                 : <span className="td-muted">No file attached</span>
               }
             </div>
+            <p className="admin-co-slice-hint">
+              Opens in Kiri:Moto — free browser slicer, no account needed. Export the .gcode and upload it below.
+            </p>
           </div>
 
+          {/* G-code — upload or download */}
           <div className="admin-co-section">
             <div className="admin-co-section-title">G-code</div>
             {o.gcodeURL ? (
@@ -202,6 +224,7 @@ function AdminCustomOrderCard({ order: o, onDelete, onUpdate, token }) {
             </div>
           </div>
 
+          {/* Gcode stats — shown when gcodeStats populated */}
           {stats && (stats.printTimeMins || stats.filamentUsedG || stats.layerCount) && (
             <div className="admin-co-section">
               <div className="admin-co-section-title">Slicer Output</div>
@@ -288,6 +311,7 @@ function AdminCustomOrderCard({ order: o, onDelete, onUpdate, token }) {
             </div>
           )}
 
+          {/* Order details */}
           {Array.isArray(o.orderDetails) && o.orderDetails.length > 0 && (
             <div className="admin-co-section">
               <div className="admin-co-section-title">Order Details</div>
@@ -311,6 +335,9 @@ function AdminCustomOrderCard({ order: o, onDelete, onUpdate, token }) {
     </div>
   );
 }
+
+
+/* ── Main Admin component ────────────────────────────────────────── */
 
 function Admin({ token, user }) {
   const [activeTab, setActiveTab] = useState("overview");

@@ -1145,3 +1145,37 @@
   li { font-size: 13px; color: var(--text-secondary); }
 }
 .admin-co-notes { font-size: 13px; color: var(--text-muted); font-style: italic; margin: 0; }
+
+// ── Gcode manual upload ──────────────────────────────────────────
+.admin-co-gcode-upload {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+
+  .gcode-file-input {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+} v v             b    b
+                                                                              v  v 
+// ── Slicer button + hint ─────────────────────────────────────────
+.btn-slicer {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  border: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+  }
+}
+
+.admin-co-slice-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted, #6b7280);
+  margin-top: 0.4rem;
+  font-style: italic;
+}
