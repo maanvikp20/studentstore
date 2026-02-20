@@ -1,23 +1,14 @@
-const mongoose = require('mongoose');
+require ("dotenv").config();
+const mongoose = require("mongoose");
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-async function connectDB() {
-  if (cached.conn) return cached.conn;
-
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(process.env.MONGODB_URI_JOSE, {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 10000,
-    }).then(m => m);
-  }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
+async function connectDB(uri) {
+    try{
+        console.log(uri)
+        await mongoose.connect(uri);
+        console.log("MongoDB Connected")
+    }catch(err){
+        console.log("DB Connection Error:", err)
+    }
 }
 
 module.exports = connectDB;

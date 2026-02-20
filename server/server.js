@@ -22,13 +22,7 @@ const app = express()
 
 // IMPORTANT: Middleware order matters!
 // 1. CORS first (before body parsers)
-app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://studentstore-client.vercel.app"
-  ],
-  credentials: true
-}));
+app.use(cors())
 
 // 2. Body parsers (MUST be before routes)
 app.use(express.json()) // Parse JSON bodies
